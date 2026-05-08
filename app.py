@@ -391,8 +391,13 @@ elements.append(medical_table)
 elements.append(Spacer(1, 20))
 
 # Prediction Result
+if prediction == 1:
+    result_label = "High Risk of Diabetes"
+else:
+    result_label = "Low Risk of Diabetes"
+
 result_text = f"""
-<b>Prediction Result:</b> {"High Risk of Diabetes" if prediction == 1 else "Low Risk of Diabetes"}<br/><br/>
+<b>Prediction Result:</b> {result_label}<br/><br/>
 <b>Prediction Confidence:</b> {probability*100:.2f}%<br/><br/>
 <b>BMI Category:</b> {bmi_status}
 """
