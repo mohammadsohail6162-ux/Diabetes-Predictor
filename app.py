@@ -108,42 +108,105 @@ with left:
 
     c1, c2, c3 = st.columns(3)
 
+    # =========================================================
+# INPUT SECTION
+# =========================================================
+left, right = st.columns([2, 1])
+
+with left:
+
+    st.subheader("📋 Enter Medical Details")
+
+    c1, c2, c3 = st.columns(3)
+
+    # =====================================================
+    # COLUMN 1
+    # =====================================================
     with c1:
 
-    # Show pregnancies only for female
-    if gender == "Female":
+        # Pregnancies only for Female
+        if gender == "Female":
 
-        preg = st.number_input(
-            "Pregnancies",
-            min_value=0,
-            max_value=20,
-            value=1
+            preg = st.number_input(
+                "Pregnancies",
+                min_value=0,
+                max_value=20,
+                value=1
+            )
+
+        else:
+
+            preg = 0
+
+            st.info(
+                "Pregnancies not applicable for male patients"
+            )
+
+        glucose = st.slider(
+            "Glucose",
+            50,
+            250,
+            120
         )
 
-    else:
-
-        preg = 0
-        st.info(
-            "Pregnancies not applicable for male patients"
-        )
-
-    glucose = st.slider(
-        "Glucose",
-        50,
-        250,
-        120
-    )
+    # =====================================================
+    # COLUMN 2
+    # =====================================================
     with c2:
-        bp = st.slider("Blood Pressure", 40, 150, 70)
-        skin = st.slider("Skin Thickness", 0, 100, 20)
 
+        bp = st.slider(
+            "Blood Pressure",
+            40,
+            150,
+            70
+        )
+
+        skin = st.slider(
+            "Skin Thickness",
+            0,
+            100,
+            20
+        )
+
+    # =====================================================
+    # COLUMN 3
+    # =====================================================
     with c3:
-        insulin = st.slider("Insulin", 0, 400, 100)
-        age = st.slider("Age", 1, 100, 30)
 
-    bmi = st.slider("BMI", 10.0, 60.0, 25.0)
-    dpf = st.slider("Diabetes Pedigree Function", 0.0, 3.0, 0.5)
+        insulin = st.slider(
+            "Insulin",
+            0,
+            400,
+            100
+        )
 
+        age = st.slider(
+            "Age",
+            1,
+            100,
+            30
+        )
+
+    # =====================================================
+    # OTHER INPUTS
+    # =====================================================
+    bmi = st.slider(
+        "BMI",
+        10.0,
+        60.0,
+        25.0
+    )
+
+    dpf = st.slider(
+        "Diabetes Pedigree Function",
+        0.0,
+        3.0,
+        0.5
+    )
+
+# =========================================================
+# RIGHT PANEL
+# =========================================================
 with right:
 
     st.subheader("📊 Live Metrics")
