@@ -112,15 +112,20 @@ with left:
 
     # Show pregnancies only for female
     if gender == "Female":
+
         preg = st.number_input(
             "Pregnancies",
             min_value=0,
             max_value=20,
             value=1
         )
+
     else:
+
         preg = 0
-        st.info("Pregnancies not applicable for male patients")
+        st.info(
+            "Pregnancies not applicable for male patients"
+        )
 
     glucose = st.slider(
         "Glucose",
@@ -128,7 +133,6 @@ with left:
         250,
         120
     )
-
     with c2:
         bp = st.slider("Blood Pressure", 40, 150, 70)
         skin = st.slider("Skin Thickness", 0, 100, 20)
