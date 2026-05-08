@@ -5,6 +5,12 @@ import pickle
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus.tables import Table, TableStyle
+from reportlab.lib import colors
+from io import BytesIO
 
 # =========================================================
 # PAGE CONFIG
@@ -312,40 +318,120 @@ if st.button("🚀 Run AI Prediction"):
         - Annual health checkup
         """)
 
-    # =====================================================
-    # DOWNLOAD REPORT
-    # =====================================================
-    report = pd.DataFrame({
-        "Parameter": [
-            "Patient Name",
-            "Gender",
-            "Glucose",
-            "Blood Pressure",
-            "BMI",
-            "Age",
-            "Prediction",
-            "Probability"
-        ],
-        "Value": [
-            patient_name,
-            gender,
-            glucose,
-            bp,
-            bmi,
-            age,
-            "High Risk" if prediction == 1 else "Low Risk",
-            f"{probability*100:.2f}%"
-        ]
-    })
+# =====================================================
+# PDF REPORT GENERATION
+# =====================================================
 
-    csv = report.to_csv(index=False)
+buffer = BytesIO()
 
-    st.download_button(
-        label="📥 Download Medical Report",
-        data=csv,
-        file_name="diabetes_report.csv",
-        mime="text/csv"
-    )
+doc = SimpleDocTemplate(
+    buffer,
+    pagesize=letter
+)
+
+styles = getSampleStyleSheet()
+
+elements = []
+
+# Title
+title = Paragraph(
+    "<b>AI Diabetes Prediction Medical Report</b>",
+    styles['Title']
+)
+
+elements.append(title)
+elements.append(Spacer(1, 20))
+
+# Patient Info
+patient_info = [
+    ["Patient Name", patient_name],
+    ["Gender", gender],
+    ["Date", str(date)],
+]
+
+patient_table = Table(patient_info, colWidths=[200, 250])
+
+patient_table.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (-1,0), colors.lightblue),
+    ('GRID', (0,0), (-1,-1), 1, colors.black),
+    ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+]))
+
+elements.append(patient_table)
+elements.append(Spacer(1, 20))
+
+# Medical Data
+medical_data = [
+    ["Parameter", "Value"],
+    ["Pregnancies", preg],
+    ["Glucose", glucose],
+    ["Blood Pressure", bp],
+    ["Skin Thickness", skin],
+    ["Insulin", insulin],
+    ["BMI", bmi],
+    ["DPF", dpf],
+    ["Age", age],
+]
+
+medical_table = Table(medical_data, colWidths=[200, 250])
+
+medical_table.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (-1,0), colors.grey),
+    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+
+    ('GRID', (0,0), (-1,-1), 1, colors.black),
+
+    ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+
+    ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+]))
+
+elements.append(medical_table)
+elements.append(Spacer(1, 20))
+
+# Prediction Result
+result_text = f"""
+<b>Prediction Result:</b> {"High Risk of Diabetes" if prediction == 1 else "Low Risk of Diabetes"}<br/><br/>
+<b>Prediction Confidence:</b> {probability*100:.2f}%<br/><br/>
+<b>BMI Category:</b> {bmi_status}
+"""
+
+result_para = Paragraph(result_text, styles['BodyText'])
+
+elements.append(result_para)
+elements.append(Spacer(1, 20))
+
+# Recommendations
+recommendation = """
+<b>Health Recommendations:</b><br/>
+- Exercise regularly<br/>
+- Maintain balanced diet<br/>
+- Reduce sugar intake<br/>
+- Drink enough water<br/>
+- Regular health checkup
+"""
+
+recommendation_para = Paragraph(
+    recommendation,
+    styles['BodyText']
+)
+
+elements.append(recommendation_para)
+
+# Build PDF
+doc.build(elements)
+
+pdf = buffer.getvalue()
+buffer.close()
+
+# Download Button
+st.download_button(
+    label="📄 Download Full Medical PDF Report",
+    data=pdf,
+    file_name="AI_Diabetes_Report.pdf",
+    mime="application/pdf"
+)
 
 # =========================================================
 # FOOTER
