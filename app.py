@@ -109,8 +109,25 @@ with left:
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        preg = st.number_input("Pregnancies", 0, 20, 1)
-        glucose = st.slider("Glucose", 50, 250, 120)
+
+    # Show pregnancies only for female
+    if gender == "Female":
+        preg = st.number_input(
+            "Pregnancies",
+            min_value=0,
+            max_value=20,
+            value=1
+        )
+    else:
+        preg = 0
+        st.info("Pregnancies not applicable for male patients")
+
+    glucose = st.slider(
+        "Glucose",
+        50,
+        250,
+        120
+    )
 
     with c2:
         bp = st.slider("Blood Pressure", 40, 150, 70)
