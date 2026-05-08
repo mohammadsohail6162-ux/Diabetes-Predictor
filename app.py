@@ -1,3 +1,7 @@
+# =========================================================
+# ADVANCED AI DIABETES PREDICTION SYSTEM
+# =========================================================
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -30,36 +34,215 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS
+# PREMIUM CYBERPUNK UI
 # =========================================================
 st.markdown("""
 <style>
 
-.main {
-    background-color: #0e1117;
+/* =======================================================
+BACKGROUND
+======================================================= */
+
+.stApp {
+    background: linear-gradient(
+        135deg,
+        #020617,
+        #0f172a,
+        #111827
+    );
+    color: white;
 }
+
+/* =======================================================
+MAIN CONTAINER
+======================================================= */
+
+.main .block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* =======================================================
+HEADINGS
+======================================================= */
+
+h1 {
+    color: #00e5ff;
+    text-align: center;
+    font-weight: 800;
+    text-shadow: 0px 0px 15px #00e5ff;
+}
+
+h2, h3 {
+    color: white;
+}
+
+/* =======================================================
+GLASS CARD
+======================================================= */
+
+.glass-card {
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 20px;
+
+    padding: 25px;
+
+    backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+        0 8px 32px rgba(0,0,0,0.35);
+
+    transition: 0.3s;
+}
+
+.glass-card:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 0 25px rgba(0,229,255,0.5);
+}
+
+/* =======================================================
+BUTTONS
+======================================================= */
 
 .stButton > button {
+
     width: 100%;
-    background: linear-gradient(to right, #00c6ff, #0072ff);
+
+    background: linear-gradient(
+        90deg,
+        #00e5ff,
+        #7c3aed
+    );
+
     color: white;
-    border-radius: 10px;
-    height: 3em;
+
+    border-radius: 15px;
+
+    height: 3.5em;
+
     border: none;
+
     font-size: 18px;
+
     font-weight: bold;
+
+    transition: 0.3s;
+
+    box-shadow:
+        0 0 15px rgba(0,229,255,0.5);
 }
 
+.stButton > button:hover {
+
+    transform: scale(1.02);
+
+    box-shadow:
+        0 0 30px rgba(124,58,237,0.8);
+}
+
+/* =======================================================
+METRICS
+======================================================= */
+
+[data-testid="metric-container"] {
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 20px;
+
+    padding: 15px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* =======================================================
+SIDEBAR
+======================================================= */
+
+section[data-testid="stSidebar"] {
+
+    background: linear-gradient(
+        180deg,
+        #111827,
+        #020617
+    );
+}
+
+/* =======================================================
+INPUT FIELDS
+======================================================= */
+
+.stTextInput input,
+.stNumberInput input {
+
+    background-color: rgba(255,255,255,0.08) !important;
+
+    color: white !important;
+
+    border-radius: 10px !important;
+}
+
+/* =======================================================
+METRIC CARD
+======================================================= */
+
 .metric-card {
-    background-color: #1c1f26;
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 20px;
+
     padding: 20px;
-    border-radius: 15px;
+
     text-align: center;
+
+    backdrop-filter: blur(8px);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    animation: glow 3s infinite;
+}
+
+@keyframes glow {
+
+    0% {
+        box-shadow: 0 0 5px #00e5ff;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #7c3aed;
+    }
+
+    100% {
+        box-shadow: 0 0 5px #00e5ff;
+    }
 }
 
 .big-font {
-    font-size: 22px !important;
+
+    font-size: 24px !important;
+
     font-weight: bold;
+
+    color: white;
+}
+
+/* =======================================================
+FOOTER
+======================================================= */
+
+footer {
+    visibility: hidden;
 }
 
 </style>
@@ -77,38 +260,54 @@ columns = pickle.load(open("columns.pkl", "rb"))
 st.sidebar.title("🩺 AI Health Dashboard")
 
 st.sidebar.info("""
-This AI-powered application predicts
-diabetes risk using Machine Learning.
+AI-Powered Healthcare Analytics Platform
+for Diabetes Risk Prediction.
 """)
 
 st.sidebar.markdown("---")
 
-patient_name = st.sidebar.text_input("👤 Patient Name")
-gender = st.sidebar.selectbox("⚧ Gender", ["Male", "Female"])
-date = st.sidebar.date_input("📅 Date", datetime.today())
+patient_name = st.sidebar.text_input(
+    "👤 Patient Name"
+)
+
+gender = st.sidebar.selectbox(
+    "⚧ Gender",
+    ["Male", "Female"]
+)
+
+date = st.sidebar.date_input(
+    "📅 Date",
+    datetime.today()
+)
 
 st.sidebar.success("✅ System Ready")
 
 # =========================================================
 # TITLE
 # =========================================================
-st.title("🧠 AI Diabetes Risk Prediction System")
-st.markdown("### Smart Healthcare Analytics Dashboard")
+st.markdown("""
+<h1>
+🧠 AI Diabetes Risk Prediction System
+</h1>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="glass-card">
+
+<h3 style="text-align:center;">
+🚀 Smart Healthcare Analytics Dashboard
+</h3>
+
+<p style="text-align:center; color:lightgray;">
+AI-Powered Medical Intelligence Platform
+</p>
+
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 
 # =========================================================
-# INPUT SECTION
-# =========================================================
-left, right = st.columns([2, 1])
-
-with left:
-
-    st.subheader("📋 Enter Medical Details")
-
-    c1, c2, c3 = st.columns(3)
-
-    # =========================================================
 # INPUT SECTION
 # =========================================================
 left, right = st.columns([2, 1])
@@ -124,7 +323,6 @@ with left:
     # =====================================================
     with c1:
 
-        # Pregnancies only for Female
         if gender == "Female":
 
             preg = st.number_input(
@@ -139,7 +337,7 @@ with left:
             preg = 0
 
             st.info(
-                "Pregnancies not applicable for male patients"
+                "Pregnancies not applicable"
             )
 
         glucose = st.slider(
@@ -187,9 +385,6 @@ with left:
             30
         )
 
-    # =====================================================
-    # OTHER INPUTS
-    # =====================================================
     bmi = st.slider(
         "BMI",
         10.0,
@@ -209,7 +404,7 @@ with left:
 # =========================================================
 with right:
 
-    st.subheader("📊 Live Metrics")
+    st.subheader("📊 Live Health Metrics")
 
     st.metric("Glucose", glucose)
     st.metric("BMI", bmi)
@@ -217,35 +412,46 @@ with right:
     st.metric("Age", age)
 
 # =========================================================
-# BMI STATUS
+# BMI CATEGORY
 # =========================================================
 if bmi < 18.5:
+
     bmi_status = "Underweight"
     bmi_color = "blue"
 
 elif bmi < 25:
+
     bmi_status = "Normal"
     bmi_color = "green"
 
 elif bmi < 30:
+
     bmi_status = "Overweight"
     bmi_color = "orange"
 
 else:
+
     bmi_status = "Obese"
     bmi_color = "red"
 
 st.markdown(f"""
 <div class="metric-card">
-    <p class="big-font">BMI Category</p>
-    <h2 style='color:{bmi_color};'>{bmi_status}</h2>
+
+<p class="big-font">
+BMI Category
+</p>
+
+<h2 style='color:{bmi_color};'>
+{bmi_status}
+</h2>
+
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
 # =========================================================
-# PREDICTION BUTTON
+# PREDICTION
 # =========================================================
 if st.button("🚀 Run AI Prediction"):
 
@@ -253,6 +459,7 @@ if st.button("🚀 Run AI Prediction"):
     # INPUT DATAFRAME
     # =====================================================
     input_raw = pd.DataFrame({
+
         'Pregnancies': [preg],
         'Glucose': [glucose],
         'BloodPressure': [bp],
@@ -266,7 +473,10 @@ if st.button("🚀 Run AI Prediction"):
     # =====================================================
     # FEATURE ENGINEERING
     # =====================================================
-    input_raw['Glucose_BMI'] = input_raw['Glucose'] * input_raw['BMI']
+    input_raw['Glucose_BMI'] = (
+        input_raw['Glucose'] * input_raw['BMI']
+    )
+
     input_raw['Insulin_Glucose'] = (
         input_raw['Insulin'] * input_raw['Glucose']
     )
@@ -284,9 +494,6 @@ if st.button("🚀 Run AI Prediction"):
     # =====================================================
     input_encoded = pd.get_dummies(input_raw)
 
-    # =====================================================
-    # MATCH TRAINING COLUMNS
-    # =====================================================
     input_df = input_encoded.reindex(
         columns=columns,
         fill_value=0
@@ -303,9 +510,17 @@ if st.button("🚀 Run AI Prediction"):
     # RESULT LABEL
     # =====================================================
     if prediction == 1:
+
         result_label = "High Risk of Diabetes"
+
     else:
+
         result_label = "Low Risk of Diabetes"
+
+    # =====================================================
+    # HEALTH SCORE
+    # =====================================================
+    health_score = int(100 - (probability * 100))
 
     # =====================================================
     # RESULT SECTION
@@ -315,57 +530,90 @@ if st.button("🚀 Run AI Prediction"):
     with colA:
 
         if prediction == 1:
-            st.error("⚠️ HIGH RISK OF DIABETES")
+
+            st.error(
+                "⚠️ HIGH RISK OF DIABETES"
+            )
+
         else:
-            st.success("✅ LOW RISK OF DIABETES")
+
+            st.success(
+                "✅ LOW RISK OF DIABETES"
+            )
 
         st.write(
             f"### 🎯 Prediction Confidence: "
             f"{probability*100:.2f}%"
         )
 
-        # Risk level
+        st.write(
+            f"### ❤️ Health Score: "
+            f"{health_score}/100"
+        )
+
         if probability < 0.30:
+
             st.success("🟢 Low Risk")
 
         elif probability < 0.70:
+
             st.warning("🟡 Medium Risk")
 
         else:
+
             st.error("🔴 High Risk")
 
+    # =====================================================
+    # GAUGE CHART
+    # =====================================================
     with colB:
 
-        # =================================================
-        # GAUGE CHART
-        # =================================================
         fig = go.Figure(go.Indicator(
+
             mode="gauge+number",
+
             value=probability * 100,
 
             title={'text': "Diabetes Risk %"},
 
             gauge={
+
                 'axis': {'range': [0, 100]},
 
                 'steps': [
-                    {'range': [0, 30], 'color': "green"},
-                    {'range': [30, 70], 'color': "orange"},
-                    {'range': [70, 100], 'color': "red"}
+
+                    {
+                        'range': [0, 30],
+                        'color': "green"
+                    },
+
+                    {
+                        'range': [30, 70],
+                        'color': "orange"
+                    },
+
+                    {
+                        'range': [70, 100],
+                        'color': "red"
+                    }
                 ]
             }
         ))
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
 
     st.markdown("---")
 
     # =====================================================
-    # ANALYTICS CHART
+    # ANALYTICS
     # =====================================================
     st.subheader("📈 Health Analytics")
 
     analytics_df = pd.DataFrame({
+
         "Feature": [
             "Glucose",
             "Blood Pressure",
@@ -384,17 +632,25 @@ if st.button("🚀 Run AI Prediction"):
     })
 
     fig2 = px.bar(
+
         analytics_df,
+
         x="Feature",
+
         y="Value",
+
         text="Value",
+
         title="Patient Health Parameters"
     )
 
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(
+        fig2,
+        use_container_width=True
+    )
 
     # =====================================================
-    # HEALTH RECOMMENDATIONS
+    # RECOMMENDATIONS
     # =====================================================
     st.subheader("💡 AI Health Recommendations")
 
@@ -402,26 +658,29 @@ if st.button("🚀 Run AI Prediction"):
 
         st.warning("""
         ### Recommended Actions
+
         - Reduce sugar intake
         - Daily exercise
         - Weight management
         - Regular glucose monitoring
-        - Consult a doctor
+        - Consult a diabetologist
+        - Drink more water
         """)
 
     else:
 
         st.success("""
         ### Healthy Lifestyle Tips
-        - Maintain healthy diet
+
+        - Maintain balanced diet
         - Exercise regularly
-        - Drink enough water
         - Sleep properly
+        - Drink enough water
         - Regular health checkup
         """)
 
     # =====================================================
-    # PDF REPORT GENERATION
+    # PDF REPORT
     # =====================================================
     buffer = BytesIO()
 
@@ -434,11 +693,8 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
-    # =====================================================
-    # TITLE
-    # =====================================================
     title = Paragraph(
-        "<b>AI Diabetes Prediction Medical Report</b>",
+        "<b>AI Diabetes Medical Report</b>",
         styles['Title']
     )
 
@@ -446,11 +702,14 @@ if st.button("🚀 Run AI Prediction"):
     elements.append(Spacer(1, 20))
 
     # =====================================================
-    # PATIENT INFO TABLE
+    # PATIENT TABLE
     # =====================================================
     patient_info = [
+
         ["Patient Name", patient_name],
+
         ["Gender", gender],
+
         ["Date", str(date)]
     ]
 
@@ -460,55 +719,42 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     patient_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.lightblue),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold')
+
+        ('BACKGROUND',
+         (0, 0),
+         (-1, -1),
+         colors.lightblue),
+
+        ('GRID',
+         (0, 0),
+         (-1, -1),
+         1,
+         colors.black),
+
+        ('FONTNAME',
+         (0, 0),
+         (-1, -1),
+         'Helvetica-Bold')
     ]))
 
     elements.append(patient_table)
     elements.append(Spacer(1, 20))
 
     # =====================================================
-    # MEDICAL DATA TABLE
-    # =====================================================
-    medical_data = [
-        ["Parameter", "Value"],
-        ["Pregnancies", preg],
-        ["Glucose", glucose],
-        ["Blood Pressure", bp],
-        ["Skin Thickness", skin],
-        ["Insulin", insulin],
-        ["BMI", bmi],
-        ["DPF", dpf],
-        ["Age", age]
-    ]
-
-    medical_table = Table(
-        medical_data,
-        colWidths=[200, 250]
-    )
-
-    medical_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica')
-    ]))
-
-    elements.append(medical_table)
-    elements.append(Spacer(1, 20))
-
-    # =====================================================
     # RESULT TEXT
     # =====================================================
     result_text = f"""
-    <b>Prediction Result:</b> {result_label}<br/><br/>
-    <b>Prediction Confidence:</b> {probability*100:.2f}%<br/><br/>
-    <b>BMI Category:</b> {bmi_status}
+    <b>Prediction Result:</b>
+    {result_label}<br/><br/>
+
+    <b>Prediction Confidence:</b>
+    {probability*100:.2f}%<br/><br/>
+
+    <b>Health Score:</b>
+    {health_score}/100<br/><br/>
+
+    <b>BMI Category:</b>
+    {bmi_status}
     """
 
     result_para = Paragraph(
@@ -517,25 +763,6 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     elements.append(result_para)
-    elements.append(Spacer(1, 20))
-
-    # =====================================================
-    # RECOMMENDATIONS
-    # =====================================================
-    recommendation = """
-    <b>Health Recommendations:</b><br/>
-    - Exercise regularly<br/>
-    - Maintain balanced diet<br/>
-    - Drink enough water<br/>
-    - Regular health checkup
-    """
-
-    recommendation_para = Paragraph(
-        recommendation,
-        styles['BodyText']
-    )
-
-    elements.append(recommendation_para)
 
     # =====================================================
     # BUILD PDF
@@ -550,9 +777,13 @@ if st.button("🚀 Run AI Prediction"):
     # DOWNLOAD BUTTON
     # =====================================================
     st.download_button(
-        label="📄 Download Full Medical PDF Report",
+
+        label="📄 Download Full PDF Report",
+
         data=pdf,
+
         file_name="AI_Diabetes_Report.pdf",
+
         mime="application/pdf"
     )
 
@@ -562,6 +793,6 @@ if st.button("🚀 Run AI Prediction"):
 st.markdown("---")
 
 st.caption(
-    "🚀 Advanced AI Diabetes Prediction System "
-    "using Machine Learning + Streamlit"
+    "🚀 Advanced AI Diabetes Prediction "
+    "System using Machine Learning + Streamlit"
 )
