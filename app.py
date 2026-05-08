@@ -4,13 +4,21 @@ import numpy as np
 import pickle
 import plotly.graph_objects as go
 import plotly.express as px
+
 from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from io import BytesIO
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle
+)
+
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus.tables import Table, TableStyle
 from reportlab.lib import colors
-from io import BytesIO
 
 # =========================================================
 # PAGE CONFIG
@@ -18,8 +26,7 @@ from io import BytesIO
 st.set_page_config(
     page_title="AI Diabetes Risk Analyzer",
     page_icon="🩺",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
 # =========================================================
@@ -32,7 +39,7 @@ st.markdown("""
     background-color: #0e1117;
 }
 
-.stButton>button {
+.stButton > button {
     width: 100%;
     background: linear-gradient(to right, #00c6ff, #0072ff);
     color: white;
@@ -48,7 +55,6 @@ st.markdown("""
     padding: 20px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
 }
 
 .big-font {
@@ -68,29 +74,20 @@ columns = pickle.load(open("columns.pkl", "rb"))
 # =========================================================
 # SIDEBAR
 # =========================================================
-st.sidebar.image(
-    "https://cdn-icons-png.flaticon.com/512/2966/2966486.png",
-    width=120
-)
-
 st.sidebar.title("🩺 AI Health Dashboard")
 
 st.sidebar.info("""
 This AI-powered application predicts
-the probability of diabetes using
-Machine Learning techniques.
+diabetes risk using Machine Learning.
 """)
 
 st.sidebar.markdown("---")
 
-st.sidebar.write("### 👨‍⚕️ Patient Information")
+patient_name = st.sidebar.text_input("👤 Patient Name")
+gender = st.sidebar.selectbox("⚧ Gender", ["Male", "Female"])
+date = st.sidebar.date_input("📅 Date", datetime.today())
 
-patient_name = st.sidebar.text_input("Patient Name")
-gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
-date = st.sidebar.date_input("Date", datetime.today())
-
-st.sidebar.markdown("---")
-st.sidebar.success("System Ready ✅")
+st.sidebar.success("✅ System Ready")
 
 # =========================================================
 # TITLE
@@ -109,17 +106,17 @@ with left:
 
     st.subheader("📋 Enter Medical Details")
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    with col1:
+    with c1:
         preg = st.number_input("Pregnancies", 0, 20, 1)
         glucose = st.slider("Glucose", 50, 250, 120)
 
-    with col2:
+    with c2:
         bp = st.slider("Blood Pressure", 40, 150, 70)
         skin = st.slider("Skin Thickness", 0, 100, 20)
 
-    with col3:
+    with c3:
         insulin = st.slider("Insulin", 0, 400, 100)
         age = st.slider("Age", 1, 100, 30)
 
@@ -128,7 +125,7 @@ with left:
 
 with right:
 
-    st.subheader("📊 Live Health Metrics")
+    st.subheader("📊 Live Metrics")
 
     st.metric("Glucose", glucose)
     st.metric("BMI", bmi)
@@ -136,7 +133,7 @@ with right:
     st.metric("Age", age)
 
 # =========================================================
-# BMI CATEGORY
+# BMI STATUS
 # =========================================================
 if bmi < 18.5:
     bmi_status = "Underweight"
@@ -164,18 +161,9 @@ st.markdown(f"""
 st.markdown("---")
 
 # =========================================================
-# PREDICTION
+# PREDICTION BUTTON
 # =========================================================
 if st.button("🚀 Run AI Prediction"):
-
-    # prediction code
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0][1]
-
-    # result display
-    st.success("Prediction Done")
-
-    # PDF CODE YAHI ANDAR HOGA    
 
     # =====================================================
     # INPUT DATAFRAME
@@ -195,9 +183,17 @@ if st.button("🚀 Run AI Prediction"):
     # FEATURE ENGINEERING
     # =====================================================
     input_raw['Glucose_BMI'] = input_raw['Glucose'] * input_raw['BMI']
-    input_raw['Insulin_Glucose'] = input_raw['Insulin'] * input_raw['Glucose']
-    input_raw['Age_BMI'] = input_raw['Age'] * input_raw['BMI']
-    input_raw['BMI_Squared'] = input_raw['BMI'] ** 2
+    input_raw['Insulin_Glucose'] = (
+        input_raw['Insulin'] * input_raw['Glucose']
+    )
+
+    input_raw['Age_BMI'] = (
+        input_raw['Age'] * input_raw['BMI']
+    )
+
+    input_raw['BMI_Squared'] = (
+        input_raw['BMI'] ** 2
+    )
 
     # =====================================================
     # ENCODING
@@ -207,15 +203,25 @@ if st.button("🚀 Run AI Prediction"):
     # =====================================================
     # MATCH TRAINING COLUMNS
     # =====================================================
-    input_df = input_encoded.reindex(columns=columns, fill_value=0)
+    input_df = input_encoded.reindex(
+        columns=columns,
+        fill_value=0
+    )
 
     # =====================================================
     # PREDICTION
     # =====================================================
     prediction = model.predict(input_df)[0]
+
     probability = model.predict_proba(input_df)[0][1]
 
-    st.markdown("---")
+    # =====================================================
+    # RESULT LABEL
+    # =====================================================
+    if prediction == 1:
+        result_label = "High Risk of Diabetes"
+    else:
+        result_label = "Low Risk of Diabetes"
 
     # =====================================================
     # RESULT SECTION
@@ -229,11 +235,12 @@ if st.button("🚀 Run AI Prediction"):
         else:
             st.success("✅ LOW RISK OF DIABETES")
 
-        st.write(f"### 🎯 Prediction Confidence: {probability*100:.2f}%")
+        st.write(
+            f"### 🎯 Prediction Confidence: "
+            f"{probability*100:.2f}%"
+        )
 
-        # =================================================
-        # RISK LEVEL
-        # =================================================
+        # Risk level
         if probability < 0.30:
             st.success("🟢 Low Risk")
 
@@ -251,10 +258,12 @@ if st.button("🚀 Run AI Prediction"):
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
             value=probability * 100,
+
             title={'text': "Diabetes Risk %"},
+
             gauge={
                 'axis': {'range': [0, 100]},
-                'bar': {'color': "red"},
+
                 'steps': [
                     {'range': [0, 30], 'color': "green"},
                     {'range': [30, 70], 'color': "orange"},
@@ -268,7 +277,7 @@ if st.button("🚀 Run AI Prediction"):
     st.markdown("---")
 
     # =====================================================
-    # HEALTH ANALYTICS
+    # ANALYTICS CHART
     # =====================================================
     st.subheader("📈 Health Analytics")
 
@@ -280,6 +289,7 @@ if st.button("🚀 Run AI Prediction"):
             "Insulin",
             "Age"
         ],
+
         "Value": [
             glucose,
             bp,
@@ -307,149 +317,167 @@ if st.button("🚀 Run AI Prediction"):
     if prediction == 1:
 
         st.warning("""
-        ### Recommended Actions:
+        ### Recommended Actions
         - Reduce sugar intake
-        - Daily physical exercise
+        - Daily exercise
         - Weight management
         - Regular glucose monitoring
-        - Consult a diabetologist
-        - Increase water intake
+        - Consult a doctor
         """)
 
     else:
 
         st.success("""
-        ### Healthy Lifestyle Tips:
-        - Continue healthy diet
-        - Maintain proper sleep
-        - Regular exercise
-        - Avoid excessive sugar
-        - Annual health checkup
+        ### Healthy Lifestyle Tips
+        - Maintain healthy diet
+        - Exercise regularly
+        - Drink enough water
+        - Sleep properly
+        - Regular health checkup
         """)
 
-# =====================================================
-# PDF REPORT GENERATION
-# =====================================================
+    # =====================================================
+    # PDF REPORT GENERATION
+    # =====================================================
+    buffer = BytesIO()
 
-buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter
+    )
 
-doc = SimpleDocTemplate(
-    buffer,
-    pagesize=letter
-)
+    styles = getSampleStyleSheet()
 
-styles = getSampleStyleSheet()
+    elements = []
 
-elements = []
+    # =====================================================
+    # TITLE
+    # =====================================================
+    title = Paragraph(
+        "<b>AI Diabetes Prediction Medical Report</b>",
+        styles['Title']
+    )
 
-# Title
-title = Paragraph(
-    "<b>AI Diabetes Prediction Medical Report</b>",
-    styles['Title']
-)
+    elements.append(title)
+    elements.append(Spacer(1, 20))
 
-elements.append(title)
-elements.append(Spacer(1, 20))
+    # =====================================================
+    # PATIENT INFO TABLE
+    # =====================================================
+    patient_info = [
+        ["Patient Name", patient_name],
+        ["Gender", gender],
+        ["Date", str(date)]
+    ]
 
-# Patient Info
-patient_info = [
-    ["Patient Name", patient_name],
-    ["Gender", gender],
-    ["Date", str(date)],
-]
+    patient_table = Table(
+        patient_info,
+        colWidths=[200, 250]
+    )
 
-patient_table = Table(patient_info, colWidths=[200, 250])
+    patient_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.lightblue),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold')
+    ]))
 
-patient_table.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.lightblue),
-    ('GRID', (0,0), (-1,-1), 1, colors.black),
-    ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-]))
+    elements.append(patient_table)
+    elements.append(Spacer(1, 20))
 
-elements.append(patient_table)
-elements.append(Spacer(1, 20))
+    # =====================================================
+    # MEDICAL DATA TABLE
+    # =====================================================
+    medical_data = [
+        ["Parameter", "Value"],
+        ["Pregnancies", preg],
+        ["Glucose", glucose],
+        ["Blood Pressure", bp],
+        ["Skin Thickness", skin],
+        ["Insulin", insulin],
+        ["BMI", bmi],
+        ["DPF", dpf],
+        ["Age", age]
+    ]
 
-# Medical Data
-medical_data = [
-    ["Parameter", "Value"],
-    ["Pregnancies", preg],
-    ["Glucose", glucose],
-    ["Blood Pressure", bp],
-    ["Skin Thickness", skin],
-    ["Insulin", insulin],
-    ["BMI", bmi],
-    ["DPF", dpf],
-    ["Age", age],
-]
+    medical_table = Table(
+        medical_data,
+        colWidths=[200, 250]
+    )
 
-medical_table = Table(medical_data, colWidths=[200, 250])
+    medical_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
 
-medical_table.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.grey),
-    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
 
-    ('GRID', (0,0), (-1,-1), 1, colors.black),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
 
-    ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica')
+    ]))
 
-    ('BACKGROUND', (0,1), (-1,-1), colors.beige),
-]))
+    elements.append(medical_table)
+    elements.append(Spacer(1, 20))
 
-elements.append(medical_table)
-elements.append(Spacer(1, 20))
+    # =====================================================
+    # RESULT TEXT
+    # =====================================================
+    result_text = f"""
+    <b>Prediction Result:</b> {result_label}<br/><br/>
+    <b>Prediction Confidence:</b> {probability*100:.2f}%<br/><br/>
+    <b>BMI Category:</b> {bmi_status}
+    """
 
-# Prediction Result
-if prediction == 1:
-    result_label = "High Risk of Diabetes"
-else:
-    result_label = "Low Risk of Diabetes"
+    result_para = Paragraph(
+        result_text,
+        styles['BodyText']
+    )
 
-result_text = f"""
-<b>Prediction Result:</b> {result_label}<br/><br/>
-<b>Prediction Confidence:</b> {probability*100:.2f}%<br/><br/>
-<b>BMI Category:</b> {bmi_status}
-"""
+    elements.append(result_para)
+    elements.append(Spacer(1, 20))
 
-result_para = Paragraph(result_text, styles['BodyText'])
+    # =====================================================
+    # RECOMMENDATIONS
+    # =====================================================
+    recommendation = """
+    <b>Health Recommendations:</b><br/>
+    - Exercise regularly<br/>
+    - Maintain balanced diet<br/>
+    - Drink enough water<br/>
+    - Regular health checkup
+    """
 
-elements.append(result_para)
-elements.append(Spacer(1, 20))
+    recommendation_para = Paragraph(
+        recommendation,
+        styles['BodyText']
+    )
 
-# Recommendations
-recommendation = """
-<b>Health Recommendations:</b><br/>
-- Exercise regularly<br/>
-- Maintain balanced diet<br/>
-- Reduce sugar intake<br/>
-- Drink enough water<br/>
-- Regular health checkup
-"""
+    elements.append(recommendation_para)
 
-recommendation_para = Paragraph(
-    recommendation,
-    styles['BodyText']
-)
+    # =====================================================
+    # BUILD PDF
+    # =====================================================
+    doc.build(elements)
 
-elements.append(recommendation_para)
+    pdf = buffer.getvalue()
 
-# Build PDF
-doc.build(elements)
+    buffer.close()
 
-pdf = buffer.getvalue()
-buffer.close()
-
-# Download Button
-st.download_button(
-    label="📄 Download Full Medical PDF Report",
-    data=pdf,
-    file_name="AI_Diabetes_Report.pdf",
-    mime="application/pdf"
-)
+    # =====================================================
+    # DOWNLOAD BUTTON
+    # =====================================================
+    st.download_button(
+        label="📄 Download Full Medical PDF Report",
+        data=pdf,
+        file_name="AI_Diabetes_Report.pdf",
+        mime="application/pdf"
+    )
 
 # =========================================================
 # FOOTER
 # =========================================================
 st.markdown("---")
 
-st.caption("🚀 Advanced AI Diabetes Prediction System using Machine Learning + Streamlit")
+st.caption(
+    "🚀 Advanced AI Diabetes Prediction System "
+    "using Machine Learning + Streamlit"
+)
