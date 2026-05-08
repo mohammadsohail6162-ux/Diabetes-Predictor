@@ -168,6 +168,15 @@ st.markdown("---")
 # =========================================================
 if st.button("🚀 Run AI Prediction"):
 
+    # prediction code
+    prediction = model.predict(input_df)[0]
+    probability = model.predict_proba(input_df)[0][1]
+
+    # result display
+    st.success("Prediction Done")
+
+    # PDF CODE YAHI ANDAR HOGA    
+
     # =====================================================
     # INPUT DATAFRAME
     # =====================================================
