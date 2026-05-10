@@ -1,15 +1,3 @@
-# =========================================================
-# AI DIABETES PREDICTION SYSTEM
-# COMPLETE FINAL CODE WITH:
-# ✅ User Login
-# ✅ User Signup
-# ✅ Admin Login
-# ✅ Admin Dashboard
-# ✅ Logout
-# ✅ PDF Report
-# ✅ SQLite Database
-# =========================================================
-
 import streamlit as st
 import pandas as pd
 import pickle
