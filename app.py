@@ -446,7 +446,7 @@ if st.session_state.logged_in == False:
     if st.sidebar.button("🔐 User Login"):
         st.session_state.menu = "User Login"
 
-    if st.sidebar.button("📝 Create Account"):
+    if st.sidebar.button("📝 Sign Up"):
         st.session_state.menu = "Create Account"
 
     if st.sidebar.button("🛡️ Admin Login"):
