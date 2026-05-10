@@ -1,6 +1,11 @@
+# IMPORTANT:
+# 1. Delete old users.db file before running
+# 2. Keep diabetes_model.pkl and columns.pkl in same folder
+# 3. Run using:
+#    streamlit run app.py
+
 import streamlit as st
 import pandas as pd
-import numpy as np
 import pickle
 import sqlite3
 import hashlib
@@ -71,7 +76,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# DATABASE CONNECTION
+# DATABASE
 # =========================================================
 
 conn = sqlite3.connect(
@@ -147,7 +152,7 @@ columns = pickle.load(
 )
 
 # =========================================================
-# PASSWORD HASH
+# HASH PASSWORD
 # =========================================================
 
 def make_hash(password):
@@ -225,7 +230,7 @@ if st.session_state.logged_in == False:
     )
 
     # =====================================================
-    # LOGIN PAGE
+    # LOGIN
     # =====================================================
 
     if choice == "Login":
@@ -242,18 +247,11 @@ if st.session_state.logged_in == False:
         if st.button("Login"):
 
             cursor.execute(
-
                 "SELECT * FROM users WHERE email=?",
-
                 (email,)
-
             )
 
             existing_user = cursor.fetchone()
-
-            # =============================================
-            # USER NOT FOUND
-            # =============================================
 
             if existing_user is None:
 
@@ -291,7 +289,7 @@ if st.session_state.logged_in == False:
                     )
 
     # =====================================================
-    # CREATE ACCOUNT PAGE
+    # CREATE ACCOUNT
     # =====================================================
 
     elif choice == "Create Account":
@@ -348,10 +346,6 @@ if st.session_state.logged_in == False:
                 )
 
                 existing_user = cursor.fetchone()
-
-                # =========================================
-                # ACCOUNT EXISTS
-                # =========================================
 
                 if existing_user:
 
@@ -416,8 +410,6 @@ date = st.sidebar.date_input(
     "📅 Date",
     datetime.today()
 )
-
-st.sidebar.success("✅ System Ready")
 
 # =========================================================
 # TITLE
@@ -567,6 +559,10 @@ st.markdown("---")
 
 if st.button("🚀 Run AI Prediction"):
 
+    # =====================================================
+    # INPUT DATA
+    # =====================================================
+
     input_raw = pd.DataFrame({
 
         'Pregnancies': [preg],
@@ -700,9 +696,9 @@ if st.button("🚀 Run AI Prediction"):
     # RESULT DISPLAY
     # =====================================================
 
-    colA, colB = st.columns(2)
+    col1, col2 = st.columns(2)
 
-    with colA:
+    with col1:
 
         if prediction == 1:
 
@@ -717,11 +713,11 @@ if st.button("🚀 Run AI Prediction"):
             )
 
         st.write(
-            f"### 🎯 Prediction Confidence: "
+            f"### Prediction Confidence: "
             f"{probability*100:.2f}%"
         )
 
-    with colB:
+    with col2:
 
         fig = go.Figure(go.Indicator(
 
@@ -765,8 +761,6 @@ if st.button("🚀 Run AI Prediction"):
             use_container_width=True
         )
 
-    st.markdown("---")
-
     # =====================================================
     # ANALYTICS
     # =====================================================
@@ -808,233 +802,256 @@ if st.button("🚀 Run AI Prediction"):
         use_container_width=True
     )
 
-# =====================================================
-# PDF REPORT
-# =====================================================
+    # =====================================================
+    # RECOMMENDATIONS
+    # =====================================================
 
-buffer = BytesIO()
+    st.subheader("💡 Health Recommendations")
 
-doc = SimpleDocTemplate(
-    buffer,
-    pagesize=letter
-)
+    if prediction == 1:
 
-styles = getSampleStyleSheet()
+        st.warning("""
 
-elements = []
+        - Reduce sugar intake
+        - Daily exercise
+        - Weight management
+        - Regular glucose monitoring
+        - Consult doctor regularly
 
-# =====================================================
-# TITLE
-# =====================================================
+        """)
 
-title = Paragraph(
-    "<b>AI Diabetes Prediction Medical Report</b>",
-    styles['Title']
-)
+    else:
 
-elements.append(title)
+        st.success("""
 
-elements.append(
-    Spacer(1, 20)
-)
+        - Maintain healthy diet
+        - Exercise regularly
+        - Drink enough water
+        - Sleep properly
+        - Regular health checkup
 
-# =====================================================
-# PATIENT INFO
-# =====================================================
+        """)
 
-patient_info = [
+    # =====================================================
+    # PDF REPORT
+    # =====================================================
 
-    ["Patient Name", patient_name],
-    ["Gender", gender],
-    ["Date", str(date)],
-    ["Prediction", result_label],
-    ["Confidence", f"{probability*100:.2f}%"],
-    ["BMI Status", bmi_status]
+    buffer = BytesIO()
 
-]
-
-patient_table = Table(
-    patient_info,
-    colWidths=[220, 220]
-)
-
-patient_table.setStyle(TableStyle([
-
-    (
-        'BACKGROUND',
-        (0, 0),
-        (-1, -1),
-        colors.lightblue
-    ),
-
-    (
-        'GRID',
-        (0, 0),
-        (-1, -1),
-        1,
-        colors.black
-    ),
-
-    (
-        'FONTNAME',
-        (0, 0),
-        (-1, -1),
-        'Helvetica-Bold'
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter
     )
 
-]))
+    styles = getSampleStyleSheet()
 
-elements.append(patient_table)
+    elements = []
 
-elements.append(
-    Spacer(1, 20)
-)
+    # =====================================================
+    # TITLE
+    # =====================================================
 
-# =====================================================
-# MEDICAL DATA TABLE
-# =====================================================
-
-medical_data = [
-
-    ["Parameter", "Value"],
-
-    ["Pregnancies", preg],
-    ["Glucose", glucose],
-    ["Blood Pressure", bp],
-    ["Skin Thickness", skin],
-    ["Insulin", insulin],
-    ["BMI", bmi],
-    ["DPF", dpf],
-    ["Age", age]
-
-]
-
-medical_table = Table(
-    medical_data,
-    colWidths=[220, 220]
-)
-
-medical_table.setStyle(TableStyle([
-
-    (
-        'BACKGROUND',
-        (0, 0),
-        (-1, 0),
-        colors.grey
-    ),
-
-    (
-        'TEXTCOLOR',
-        (0, 0),
-        (-1, 0),
-        colors.white
-    ),
-
-    (
-        'GRID',
-        (0, 0),
-        (-1, -1),
-        1,
-        colors.black
-    ),
-
-    (
-        'BACKGROUND',
-        (0, 1),
-        (-1, -1),
-        colors.beige
+    title = Paragraph(
+        "<b>AI Diabetes Prediction Medical Report</b>",
+        styles['Title']
     )
 
-]))
+    elements.append(title)
 
-elements.append(medical_table)
+    elements.append(
+        Spacer(1, 20)
+    )
 
-elements.append(
-    Spacer(1, 20)
-)
+    # =====================================================
+    # PATIENT INFO
+    # =====================================================
 
-# =====================================================
-# HEALTH RECOMMENDATIONS
-# =====================================================
+    patient_info = [
 
-if prediction == 1:
+        ["Patient Name", patient_name],
+        ["Gender", gender],
+        ["Date", str(date)],
+        ["Prediction", result_label],
+        ["Confidence", f"{probability*100:.2f}%"],
+        ["BMI Status", bmi_status]
 
-    recommendation_text = """
+    ]
 
-    <b>Health Recommendations:</b><br/><br/>
+    patient_table = Table(
+        patient_info,
+        colWidths=[220, 220]
+    )
 
-    • Reduce sugar intake<br/>
-    • Daily exercise<br/>
-    • Weight management<br/>
-    • Regular glucose monitoring<br/>
-    • Consult doctor regularly
+    patient_table.setStyle(TableStyle([
 
-    """
+        (
+            'BACKGROUND',
+            (0, 0),
+            (-1, -1),
+            colors.lightblue
+        ),
 
-else:
+        (
+            'GRID',
+            (0, 0),
+            (-1, -1),
+            1,
+            colors.black
+        ),
 
-    recommendation_text = """
+        (
+            'FONTNAME',
+            (0, 0),
+            (-1, -1),
+            'Helvetica-Bold'
+        )
 
-    <b>Healthy Lifestyle Tips:</b><br/><br/>
+    ]))
 
-    • Maintain healthy diet<br/>
-    • Exercise regularly<br/>
-    • Drink enough water<br/>
-    • Sleep properly<br/>
-    • Regular health checkup
+    elements.append(patient_table)
 
-    """
+    elements.append(
+        Spacer(1, 20)
+    )
 
-recommendation_para = Paragraph(
-    recommendation_text,
-    styles['BodyText']
-)
+    # =====================================================
+    # MEDICAL DATA
+    # =====================================================
 
-elements.append(recommendation_para)
+    medical_data = [
 
-elements.append(
-    Spacer(1, 20)
-)
+        ["Parameter", "Value"],
 
-# =====================================================
-# FOOTER
-# =====================================================
+        ["Pregnancies", preg],
+        ["Glucose", glucose],
+        ["Blood Pressure", bp],
+        ["Skin Thickness", skin],
+        ["Insulin", insulin],
+        ["BMI", bmi],
+        ["DPF", dpf],
+        ["Age", age]
 
-footer = Paragraph(
+    ]
 
-    "Generated by AI Diabetes Prediction System",
+    medical_table = Table(
+        medical_data,
+        colWidths=[220, 220]
+    )
 
-    styles['Italic']
+    medical_table.setStyle(TableStyle([
 
-)
+        (
+            'BACKGROUND',
+            (0, 0),
+            (-1, 0),
+            colors.grey
+        ),
 
-elements.append(footer)
+        (
+            'TEXTCOLOR',
+            (0, 0),
+            (-1, 0),
+            colors.white
+        ),
 
-# =====================================================
-# BUILD PDF
-# =====================================================
+        (
+            'GRID',
+            (0, 0),
+            (-1, -1),
+            1,
+            colors.black
+        ),
 
-doc.build(elements)
+        (
+            'BACKGROUND',
+            (0, 1),
+            (-1, -1),
+            colors.beige
+        )
 
-pdf = buffer.getvalue()
+    ]))
 
-buffer.close()
+    elements.append(medical_table)
 
-# =====================================================
-# DOWNLOAD BUTTON
-# =====================================================
+    elements.append(
+        Spacer(1, 20)
+    )
 
-st.download_button(
+    # =====================================================
+    # RECOMMENDATIONS IN PDF
+    # =====================================================
 
-    label="📄 Download Full Medical PDF Report",
+    if prediction == 1:
 
-    data=pdf,
+        recommendation_text = """
 
-    file_name="AI_Diabetes_Report.pdf",
+        <b>Health Recommendations:</b><br/><br/>
 
-    mime="application/pdf"
+        • Reduce sugar intake<br/>
+        • Daily exercise<br/>
+        • Weight management<br/>
+        • Regular glucose monitoring<br/>
+        • Consult doctor regularly
 
-)
+        """
+
+    else:
+
+        recommendation_text = """
+
+        <b>Healthy Lifestyle Tips:</b><br/><br/>
+
+        • Maintain healthy diet<br/>
+        • Exercise regularly<br/>
+        • Drink enough water<br/>
+        • Sleep properly<br/>
+        • Regular health checkup
+
+        """
+
+    recommendation_para = Paragraph(
+        recommendation_text,
+        styles['BodyText']
+    )
+
+    elements.append(recommendation_para)
+
+    elements.append(
+        Spacer(1, 20)
+    )
+
+    footer = Paragraph(
+        "Generated by AI Diabetes Prediction System",
+        styles['Italic']
+    )
+
+    elements.append(footer)
+
+    # =====================================================
+    # BUILD PDF
+    # =====================================================
+
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+
+    buffer.close()
+
+    # =====================================================
+    # DOWNLOAD BUTTON
+    # =====================================================
+
+    st.download_button(
+
+        label="📄 Download Full Medical PDF Report",
+
+        data=pdf,
+
+        file_name="AI_Diabetes_Report.pdf",
+
+        mime="application/pdf"
+
+    )
 
 # =========================================================
 # ADMIN PANEL
