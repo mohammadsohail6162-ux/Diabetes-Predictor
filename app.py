@@ -217,7 +217,7 @@ if st.session_state.logged_in == False:
 
     st.title("🩺 AI Diabetes Prediction System")
 
-    menu = ["Login", "Signup"]
+    menu = ["Login", "Create Account"]
 
     choice = st.sidebar.selectbox(
         "Menu",
@@ -225,12 +225,12 @@ if st.session_state.logged_in == False:
     )
 
     # =====================================================
-    # LOGIN
+    # LOGIN PAGE
     # =====================================================
 
     if choice == "Login":
 
-        st.subheader("🔐 Login")
+        st.subheader("🔐 User Login")
 
         email = st.text_input("Email")
 
@@ -241,36 +241,66 @@ if st.session_state.logged_in == False:
 
         if st.button("Login"):
 
-            result = login_user(
-                email,
-                password
+            cursor.execute(
+
+                "SELECT * FROM users WHERE email=?",
+
+                (email,)
+
             )
 
-            if result:
+            existing_user = cursor.fetchone()
 
-                st.success(
-                    "Login Successful"
+            # =============================================
+            # USER DOES NOT EXIST
+            # =============================================
+
+            if existing_user is None:
+
+                st.error(
+                    "User does not exist"
                 )
 
-                st.session_state.logged_in = True
+                st.info(
+                    "Please create account first"
+                )
 
-                st.session_state.user_email = email
-
-                st.rerun()
+            # =============================================
+            # LOGIN VALIDATION
+            # =============================================
 
             else:
 
-                st.error(
-                    "Invalid Email or Password"
+                result = login_user(
+                    email,
+                    password
                 )
 
+                if result:
+
+                    st.success(
+                        "Login Successful"
+                    )
+
+                    st.session_state.logged_in = True
+
+                    st.session_state.user_email = email
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        "Incorrect Password"
+                    )
+
     # =====================================================
-    # SIGNUP
+    # CREATE ACCOUNT PAGE
     # =====================================================
 
-    elif choice == "Signup":
+    elif choice == "Create Account":
 
-        st.subheader("📝 Create Account")
+        st.subheader("📝 Create New Account")
 
         new_user = st.text_input(
             "Username"
@@ -285,31 +315,87 @@ if st.session_state.logged_in == False:
             type="password"
         )
 
-        if st.button("Signup"):
+        confirm_password = st.text_input(
+            "Confirm Password",
+            type="password"
+        )
 
-            try:
+        if st.button("Create Account"):
 
-                signup_user(
+            # =============================================
+            # EMPTY FIELD CHECK
+            # =============================================
 
-                    new_user,
-                    new_email,
-                    new_password
+            if (
 
+                new_user == ""
+                or new_email == ""
+                or new_password == ""
+                or confirm_password == ""
+
+            ):
+
+                st.warning(
+                    "Please fill all fields"
                 )
 
-                st.success(
-                    "Account Created Successfully"
-                )
+            # =============================================
+            # PASSWORD MATCH CHECK
+            # =============================================
 
-                st.info(
-                    "Go to Login Page"
-                )
-
-            except:
+            elif new_password != confirm_password:
 
                 st.error(
-                    "Email Already Exists"
+                    "Passwords do not match"
                 )
+
+            else:
+
+                cursor.execute(
+
+                    "SELECT * FROM users WHERE email=?",
+
+                    (new_email,)
+
+                )
+
+                existing_user = cursor.fetchone()
+
+                # =========================================
+                # USER ALREADY EXISTS
+                # =========================================
+
+                if existing_user:
+
+                    st.error(
+                        "Account already exists"
+                    )
+
+                    st.info(
+                        "Please login instead"
+                    )
+
+                # =========================================
+                # CREATE NEW USER
+                # =========================================
+
+                else:
+
+                    signup_user(
+
+                        new_user,
+                        new_email,
+                        new_password
+
+                    )
+
+                    st.success(
+                        "Account Created Successfully"
+                    )
+
+                    st.info(
+                        "Now go to Login Page"
+                    )
 
     st.stop()
 
@@ -443,10 +529,6 @@ with left:
             30
         )
 
-    # =====================================================
-    # OTHER INPUTS
-    # =====================================================
-
     bmi = st.slider(
         "BMI",
         10.0,
@@ -512,10 +594,6 @@ st.markdown("---")
 # =========================================================
 
 if st.button("🚀 Run AI Prediction"):
-
-    # =====================================================
-    # INPUT DATAFRAME
-    # =====================================================
 
     input_raw = pd.DataFrame({
 
@@ -671,25 +749,7 @@ if st.button("🚀 Run AI Prediction"):
             f"{probability*100:.2f}%"
         )
 
-        # Risk Level
-
-        if probability < 0.30:
-
-            st.success("🟢 Low Risk")
-
-        elif probability < 0.70:
-
-            st.warning("🟡 Medium Risk")
-
-        else:
-
-            st.error("🔴 High Risk")
-
     with colB:
-
-        # =================================================
-        # GAUGE CHART
-        # =================================================
 
         fig = go.Figure(go.Indicator(
 
@@ -777,40 +837,6 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # HEALTH RECOMMENDATIONS
-    # =====================================================
-
-    st.subheader("💡 AI Health Recommendations")
-
-    if prediction == 1:
-
-        st.warning("""
-
-        ### Recommended Actions
-
-        - Reduce sugar intake
-        - Daily exercise
-        - Weight management
-        - Regular glucose monitoring
-        - Consult a doctor
-
-        """)
-
-    else:
-
-        st.success("""
-
-        ### Healthy Lifestyle Tips
-
-        - Maintain healthy diet
-        - Exercise regularly
-        - Drink enough water
-        - Sleep properly
-        - Regular health checkup
-
-        """)
-
-    # =====================================================
     # PDF REPORT GENERATION
     # =====================================================
 
@@ -825,14 +851,8 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
-    # =====================================================
-    # TITLE
-    # =====================================================
-
     title = Paragraph(
-
         "<b>AI Diabetes Prediction Medical Report</b>",
-
         styles['Title']
     )
 
@@ -841,10 +861,6 @@ if st.button("🚀 Run AI Prediction"):
     elements.append(
         Spacer(1, 20)
     )
-
-    # =====================================================
-    # PATIENT INFO TABLE
-    # =====================================================
 
     patient_info = [
 
@@ -856,9 +872,7 @@ if st.button("🚀 Run AI Prediction"):
     ]
 
     patient_table = Table(
-
         patient_info,
-
         colWidths=[200, 250]
     )
 
@@ -890,19 +904,11 @@ if st.button("🚀 Run AI Prediction"):
 
     elements.append(patient_table)
 
-    # =====================================================
-    # BUILD PDF
-    # =====================================================
-
     doc.build(elements)
 
     pdf = buffer.getvalue()
 
     buffer.close()
-
-    # =====================================================
-    # DOWNLOAD BUTTON
-    # =====================================================
 
     st.download_button(
 
