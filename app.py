@@ -791,13 +791,13 @@ if st.button("🚀 Run AI Prediction"):
 
     conn.commit()
 
-    # =====================================================
+     # =====================================================
     # RESULT DISPLAY
     # =====================================================
 
-    colA, colB = st.columns(2)
+    col1, col2 = st.columns(2)
 
-    with colA:
+    with col1:
 
         if prediction == 1:
 
@@ -812,11 +812,11 @@ if st.button("🚀 Run AI Prediction"):
             )
 
         st.write(
-            f"### Confidence: "
+            f"### Prediction Confidence: "
             f"{probability*100:.2f}%"
         )
 
-    with colB:
+    with col2:
 
         fig = go.Figure(go.Indicator(
 
@@ -825,7 +825,7 @@ if st.button("🚀 Run AI Prediction"):
             value=probability * 100,
 
             title={
-                'text': "Risk %"
+                'text': "Diabetes Risk %"
             },
 
             gauge={
@@ -861,6 +861,77 @@ if st.button("🚀 Run AI Prediction"):
         )
 
     # =====================================================
+    # ANALYTICS
+    # =====================================================
+
+    st.subheader("📈 Health Analytics")
+
+    analytics_df = pd.DataFrame({
+
+        "Feature": [
+            "Glucose",
+            "Blood Pressure",
+            "BMI",
+            "Insulin",
+            "Age"
+        ],
+
+        "Value": [
+            glucose,
+            bp,
+            bmi,
+            insulin,
+            age
+        ]
+    })
+
+    fig2 = px.bar(
+
+        analytics_df,
+
+        x="Feature",
+        y="Value",
+        text="Value",
+
+        title="Patient Health Parameters"
+    )
+
+    st.plotly_chart(
+        fig2,
+        use_container_width=True
+    )
+
+    # =====================================================
+    # RECOMMENDATIONS
+    # =====================================================
+
+    st.subheader("💡 Health Recommendations")
+
+    if prediction == 1:
+
+        st.warning("""
+
+        - Reduce sugar intake
+        - Daily exercise
+        - Weight management
+        - Regular glucose monitoring
+        - Consult doctor regularly
+
+        """)
+
+    else:
+
+        st.success("""
+
+        - Maintain healthy diet
+        - Exercise regularly
+        - Drink enough water
+        - Sleep properly
+        - Regular health checkup
+
+        """)
+
+    # =====================================================
     # PDF REPORT
     # =====================================================
 
@@ -875,8 +946,12 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
+    # =====================================================
+    # TITLE
+    # =====================================================
+
     title = Paragraph(
-        "<b>AI Diabetes Medical Report</b>",
+        "<b>AI Diabetes Prediction Medical Report</b>",
         styles['Title']
     )
 
@@ -886,7 +961,11 @@ if st.button("🚀 Run AI Prediction"):
         Spacer(1, 20)
     )
 
-    report_data = [
+    # =====================================================
+    # PATIENT INFO
+    # =====================================================
+
+    patient_info = [
 
         ["Patient Name", patient_name],
         ["Gender", gender],
@@ -897,12 +976,12 @@ if st.button("🚀 Run AI Prediction"):
 
     ]
 
-    report_table = Table(
-        report_data,
+    patient_table = Table(
+        patient_info,
         colWidths=[220, 220]
     )
 
-    report_table.setStyle(TableStyle([
+    patient_table.setStyle(TableStyle([
 
         (
             'BACKGROUND',
@@ -917,15 +996,139 @@ if st.button("🚀 Run AI Prediction"):
             (-1, -1),
             1,
             colors.black
+        ),
+
+        (
+            'FONTNAME',
+            (0, 0),
+            (-1, -1),
+            'Helvetica-Bold'
         )
 
     ]))
 
-    elements.append(report_table)
+    elements.append(patient_table)
 
     elements.append(
         Spacer(1, 20)
     )
+
+    # =====================================================
+    # MEDICAL DATA
+    # =====================================================
+
+    medical_data = [
+
+        ["Parameter", "Value"],
+
+        ["Pregnancies", preg],
+        ["Glucose", glucose],
+        ["Blood Pressure", bp],
+        ["Skin Thickness", skin],
+        ["Insulin", insulin],
+        ["BMI", bmi],
+        ["DPF", dpf],
+        ["Age", age]
+
+    ]
+
+    medical_table = Table(
+        medical_data,
+        colWidths=[220, 220]
+    )
+
+    medical_table.setStyle(TableStyle([
+
+        (
+            'BACKGROUND',
+            (0, 0),
+            (-1, 0),
+            colors.grey
+        ),
+
+        (
+            'TEXTCOLOR',
+            (0, 0),
+            (-1, 0),
+            colors.white
+        ),
+
+        (
+            'GRID',
+            (0, 0),
+            (-1, -1),
+            1,
+            colors.black
+        ),
+
+        (
+            'BACKGROUND',
+            (0, 1),
+            (-1, -1),
+            colors.beige
+        )
+
+    ]))
+
+    elements.append(medical_table)
+
+    elements.append(
+        Spacer(1, 20)
+    )
+
+    # =====================================================
+    # RECOMMENDATIONS IN PDF
+    # =====================================================
+
+    if prediction == 1:
+
+        recommendation_text = """
+
+        <b>Health Recommendations:</b><br/><br/>
+
+        • Reduce sugar intake<br/>
+        • Daily exercise<br/>
+        • Weight management<br/>
+        • Regular glucose monitoring<br/>
+        • Consult doctor regularly
+
+        """
+
+    else:
+
+        recommendation_text = """
+
+        <b>Healthy Lifestyle Tips:</b><br/><br/>
+
+        • Maintain healthy diet<br/>
+        • Exercise regularly<br/>
+        • Drink enough water<br/>
+        • Sleep properly<br/>
+        • Regular health checkup
+
+        """
+
+    recommendation_para = Paragraph(
+        recommendation_text,
+        styles['BodyText']
+    )
+
+    elements.append(recommendation_para)
+
+    elements.append(
+        Spacer(1, 20)
+    )
+
+    footer = Paragraph(
+        "Generated by AI Diabetes Prediction System",
+        styles['Italic']
+    )
+
+    elements.append(footer)
+
+    # =====================================================
+    # BUILD PDF
+    # =====================================================
 
     doc.build(elements)
 
@@ -933,9 +1136,13 @@ if st.button("🚀 Run AI Prediction"):
 
     buffer.close()
 
+    # =====================================================
+    # DOWNLOAD BUTTON
+    # =====================================================
+
     st.download_button(
 
-        label="📄 Download PDF Report",
+        label="📄 Download Full Medical PDF Report",
 
         data=pdf,
 
@@ -944,7 +1151,6 @@ if st.button("🚀 Run AI Prediction"):
         mime="application/pdf"
 
     )
-
 # =========================================================
 # FOOTER
 # =========================================================
