@@ -230,8 +230,7 @@ if st.session_state.logged_in == False:
 
     st.title("🩺 AI Diabetes Prediction System")
 
-    menu = ["Login", "Create Account"]
-
+    menu = ["Login", "Create Account", "Admin Dashboard"]
     choice = st.sidebar.selectbox(
         "Menu",
         menu
@@ -1069,34 +1068,51 @@ if st.button("🚀 Run AI Prediction"):
 
     )
 
-# =========================================================
-# ADMIN PANEL
-# =========================================================
+# =====================================================
+# ADMIN DASHBOARD LOGIN
+# =====================================================
 
-if st.session_state.user_email == "admin@gmail.com":
+elif choice == "Admin Dashboard":
 
-    st.markdown("---")
+    st.subheader("🛡️ Admin Login")
 
-    st.subheader("🛡️ Admin Panel")
-
-    st.success("Admin Access Granted")
-
-    if st.checkbox("Show Database Records"):
-
-        df_records = pd.read_sql_query(
-            "SELECT * FROM patients",
-            conn
-        )
-
-        st.dataframe(df_records)
-
-else:
-
-    st.markdown("---")
-
-    st.info(
-        "Patient Dashboard Active"
+    admin_email = st.text_input(
+        "Admin Email"
     )
+
+    admin_password = st.text_input(
+        "Admin Password",
+        type="password"
+    )
+
+    if st.button("Admin Login"):
+
+        # =============================================
+        # ADMIN CHECK
+        # =============================================
+
+        if (
+
+            admin_email == "admin@gmail.com"
+            and admin_password == "12345"
+
+        ):
+
+            st.success(
+                "Admin Login Successful"
+            )
+
+            st.session_state.logged_in = True
+
+            st.session_state.user_email = "admin@gmail.com"
+
+            st.rerun()
+
+        else:
+
+            st.error(
+                "Invalid Admin Credentials"
+            )
 
 # =========================================================
 # FOOTER
