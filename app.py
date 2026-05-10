@@ -1,17 +1,13 @@
 # =========================================================
 # AI DIABETES PREDICTION SYSTEM
-# COMPLETE FINAL CODE
-# =========================================================
-# Run:
-# streamlit run app.py
-#
-# IMPORTANT:
-# Keep these files in same folder:
-# 1. diabetes_model.pkl
-# 2. columns.pkl
-#
-# FIRST TIME:
-# Delete old users.db file
+# COMPLETE FINAL CODE WITH:
+# ✅ User Login
+# ✅ User Signup
+# ✅ Admin Login
+# ✅ Admin Dashboard
+# ✅ Logout
+# ✅ PDF Report
+# ✅ SQLite Database
 # =========================================================
 
 import streamlit as st
@@ -115,7 +111,7 @@ CREATE TABLE IF NOT EXISTS users (
 """)
 
 # =========================================================
-# PATIENTS TABLE
+# PATIENT TABLE
 # =========================================================
 
 cursor.execute("""
@@ -162,7 +158,7 @@ columns = pickle.load(
 )
 
 # =========================================================
-# HASH PASSWORD
+# PASSWORD HASH
 # =========================================================
 
 def make_hash(password):
@@ -217,22 +213,27 @@ def signup_user(username, email, password):
 # =========================================================
 
 if "logged_in" not in st.session_state:
-
     st.session_state.logged_in = False
 
 if "user_email" not in st.session_state:
-
     st.session_state.user_email = ""
 
+if "is_admin" not in st.session_state:
+    st.session_state.is_admin = False
+
 # =========================================================
-# LOGIN / SIGNUP PAGE
+# LOGIN / SIGNUP / ADMIN LOGIN
 # =========================================================
 
 if st.session_state.logged_in == False:
 
     st.title("🩺 AI Diabetes Prediction System")
 
-    menu = ["Login", "Create Account"]
+    menu = [
+        "User Login",
+        "Create Account",
+        "Admin Login"
+    ]
 
     choice = st.sidebar.selectbox(
         "Menu",
@@ -240,10 +241,10 @@ if st.session_state.logged_in == False:
     )
 
     # =====================================================
-    # LOGIN PAGE
+    # USER LOGIN
     # =====================================================
 
-    if choice == "Login":
+    if choice == "User Login":
 
         st.subheader("🔐 User Login")
 
@@ -257,11 +258,8 @@ if st.session_state.logged_in == False:
         if st.button("Login"):
 
             cursor.execute(
-
                 "SELECT * FROM users WHERE email=?",
-
                 (email,)
-
             )
 
             existing_user = cursor.fetchone()
@@ -292,6 +290,8 @@ if st.session_state.logged_in == False:
                     st.session_state.logged_in = True
 
                     st.session_state.user_email = email
+
+                    st.session_state.is_admin = False
 
                     st.rerun()
 
@@ -330,12 +330,10 @@ if st.session_state.logged_in == False:
         if st.button("Create Account"):
 
             if (
-
                 new_user == ""
                 or new_email == ""
                 or new_password == ""
                 or confirm_password == ""
-
             ):
 
                 st.warning(
@@ -351,11 +349,8 @@ if st.session_state.logged_in == False:
             else:
 
                 cursor.execute(
-
                     "SELECT * FROM users WHERE email=?",
-
                     (new_email,)
-
                 )
 
                 existing_user = cursor.fetchone()
@@ -369,11 +364,9 @@ if st.session_state.logged_in == False:
                 else:
 
                     signup_user(
-
                         new_user,
                         new_email,
                         new_password
-
                     )
 
                     st.success(
@@ -384,6 +377,48 @@ if st.session_state.logged_in == False:
                         "Now login using your account"
                     )
 
+    # =====================================================
+    # ADMIN LOGIN
+    # =====================================================
+
+    elif choice == "Admin Login":
+
+        st.subheader("🛡️ Admin Login")
+
+        admin_email = st.text_input(
+            "Admin Email"
+        )
+
+        admin_password = st.text_input(
+            "Admin Password",
+            type="password"
+        )
+
+        if st.button("Admin Login"):
+
+            if (
+                admin_email == "admin@gmail.com"
+                and admin_password == "admin123"
+            ):
+
+                st.success(
+                    "Admin Login Successful"
+                )
+
+                st.session_state.logged_in = True
+
+                st.session_state.user_email = admin_email
+
+                st.session_state.is_admin = True
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    "Invalid Admin Credentials"
+                )
+
     st.stop()
 
 # =========================================================
@@ -392,9 +427,21 @@ if st.session_state.logged_in == False:
 
 st.sidebar.title("🩺 AI Dashboard")
 
-st.sidebar.success(
-    f"Logged in as: {st.session_state.user_email}"
-)
+if st.session_state.is_admin:
+
+    st.sidebar.success(
+        "🛡️ Admin Logged In"
+    )
+
+else:
+
+    st.sidebar.success(
+        f"👤 {st.session_state.user_email}"
+    )
+
+# =========================================================
+# LOGOUT
+# =========================================================
 
 if st.sidebar.button("Logout"):
 
@@ -402,9 +449,73 @@ if st.sidebar.button("Logout"):
 
     st.session_state.user_email = ""
 
+    st.session_state.is_admin = False
+
     st.rerun()
 
 st.sidebar.markdown("---")
+
+# =========================================================
+# ADMIN DASHBOARD
+# =========================================================
+
+if st.session_state.is_admin:
+
+    st.title("🛡️ Admin Dashboard")
+
+    total_users = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM users",
+        conn
+    )
+
+    total_patients = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM patients",
+        conn
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Total Users",
+            int(total_users['total'][0])
+        )
+
+    with col2:
+
+        st.metric(
+            "Total Predictions",
+            int(total_patients['total'][0])
+        )
+
+    st.markdown("---")
+
+    st.subheader("📂 Patient Records")
+
+    df_records = pd.read_sql_query(
+        "SELECT * FROM patients",
+        conn
+    )
+
+    st.dataframe(df_records)
+
+    csv = df_records.to_csv(
+        index=False
+    ).encode("utf-8")
+
+    st.download_button(
+        "⬇ Download CSV",
+        csv,
+        "patients_records.csv",
+        "text/csv"
+    )
+
+    st.stop()
+
+# =========================================================
+# USER SIDEBAR
+# =========================================================
 
 patient_name = st.sidebar.text_input(
     "👤 Patient Name"
@@ -444,10 +555,6 @@ with left:
 
     c1, c2, c3 = st.columns(3)
 
-    # =====================================================
-    # COLUMN 1
-    # =====================================================
-
     with c1:
 
         if gender == "Female":
@@ -464,7 +571,7 @@ with left:
             preg = 0
 
             st.info(
-                "Pregnancies not applicable for male patients"
+                "Pregnancies not applicable for male"
             )
 
         glucose = st.slider(
@@ -473,10 +580,6 @@ with left:
             250,
             120
         )
-
-    # =====================================================
-    # COLUMN 2
-    # =====================================================
 
     with c2:
 
@@ -494,10 +597,6 @@ with left:
             20
         )
 
-    # =====================================================
-    # COLUMN 3
-    # =====================================================
-
     with c3:
 
         insulin = st.slider(
@@ -513,10 +612,6 @@ with left:
             100,
             30
         )
-
-    # =====================================================
-    # OTHER INPUTS
-    # =====================================================
 
     bmi = st.slider(
         "BMI",
@@ -541,8 +636,11 @@ with right:
     st.subheader("📊 Live Metrics")
 
     st.metric("Glucose", glucose)
+
     st.metric("BMI", bmi)
+
     st.metric("Blood Pressure", bp)
+
     st.metric("Age", age)
 
 # =========================================================
@@ -579,14 +677,10 @@ st.markdown(f"""
 st.markdown("---")
 
 # =========================================================
-# PREDICTION BUTTON
+# PREDICTION
 # =========================================================
 
 if st.button("🚀 Run AI Prediction"):
-
-    # =====================================================
-    # INPUT DATAFRAME
-    # =====================================================
 
     input_raw = pd.DataFrame({
 
@@ -600,10 +694,6 @@ if st.button("🚀 Run AI Prediction"):
         'Age': [age]
 
     })
-
-    # =====================================================
-    # FEATURE ENGINEERING
-    # =====================================================
 
     input_raw['Glucose_BMI'] = (
         input_raw['Glucose'] * input_raw['BMI']
@@ -621,26 +711,14 @@ if st.button("🚀 Run AI Prediction"):
         input_raw['BMI'] ** 2
     )
 
-    # =====================================================
-    # ENCODING
-    # =====================================================
-
     input_encoded = pd.get_dummies(
         input_raw
     )
-
-    # =====================================================
-    # MATCH TRAINING COLUMNS
-    # =====================================================
 
     input_df = input_encoded.reindex(
         columns=columns,
         fill_value=0
     )
-
-    # =====================================================
-    # PREDICTION
-    # =====================================================
 
     prediction = model.predict(
         input_df
@@ -649,10 +727,6 @@ if st.button("🚀 Run AI Prediction"):
     probability = model.predict_proba(
         input_df
     )[0][1]
-
-    # =====================================================
-    # RESULT LABEL
-    # =====================================================
 
     if prediction == 1:
 
@@ -663,7 +737,7 @@ if st.button("🚀 Run AI Prediction"):
         result_label = "Low Risk of Diabetes"
 
     # =====================================================
-    # SAVE TO DATABASE
+    # SAVE DATABASE
     # =====================================================
 
     cursor.execute("""
@@ -721,9 +795,9 @@ if st.button("🚀 Run AI Prediction"):
     # RESULT DISPLAY
     # =====================================================
 
-    col1, col2 = st.columns(2)
+    colA, colB = st.columns(2)
 
-    with col1:
+    with colA:
 
         if prediction == 1:
 
@@ -738,11 +812,11 @@ if st.button("🚀 Run AI Prediction"):
             )
 
         st.write(
-            f"### Prediction Confidence: "
+            f"### Confidence: "
             f"{probability*100:.2f}%"
         )
 
-    with col2:
+    with colB:
 
         fig = go.Figure(go.Indicator(
 
@@ -751,7 +825,7 @@ if st.button("🚀 Run AI Prediction"):
             value=probability * 100,
 
             title={
-                'text': "Diabetes Risk %"
+                'text': "Risk %"
             },
 
             gauge={
@@ -787,77 +861,6 @@ if st.button("🚀 Run AI Prediction"):
         )
 
     # =====================================================
-    # ANALYTICS CHART
-    # =====================================================
-
-    st.subheader("📈 Health Analytics")
-
-    analytics_df = pd.DataFrame({
-
-        "Feature": [
-            "Glucose",
-            "Blood Pressure",
-            "BMI",
-            "Insulin",
-            "Age"
-        ],
-
-        "Value": [
-            glucose,
-            bp,
-            bmi,
-            insulin,
-            age
-        ]
-    })
-
-    fig2 = px.bar(
-
-        analytics_df,
-
-        x="Feature",
-        y="Value",
-        text="Value",
-
-        title="Patient Health Parameters"
-    )
-
-    st.plotly_chart(
-        fig2,
-        use_container_width=True
-    )
-
-    # =====================================================
-    # HEALTH RECOMMENDATIONS
-    # =====================================================
-
-    st.subheader("💡 Health Recommendations")
-
-    if prediction == 1:
-
-        st.warning("""
-
-        - Reduce sugar intake
-        - Daily exercise
-        - Weight management
-        - Regular glucose monitoring
-        - Consult doctor regularly
-
-        """)
-
-    else:
-
-        st.success("""
-
-        - Maintain healthy diet
-        - Exercise regularly
-        - Drink enough water
-        - Sleep properly
-        - Regular health checkup
-
-        """)
-
-    # =====================================================
     # PDF REPORT
     # =====================================================
 
@@ -872,12 +875,8 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
-    # =====================================================
-    # TITLE
-    # =====================================================
-
     title = Paragraph(
-        "<b>AI Diabetes Prediction Medical Report</b>",
+        "<b>AI Diabetes Medical Report</b>",
         styles['Title']
     )
 
@@ -887,11 +886,7 @@ if st.button("🚀 Run AI Prediction"):
         Spacer(1, 20)
     )
 
-    # =====================================================
-    # PATIENT INFO TABLE
-    # =====================================================
-
-    patient_info = [
+    report_data = [
 
         ["Patient Name", patient_name],
         ["Gender", gender],
@@ -902,12 +897,12 @@ if st.button("🚀 Run AI Prediction"):
 
     ]
 
-    patient_table = Table(
-        patient_info,
+    report_table = Table(
+        report_data,
         colWidths=[220, 220]
     )
 
-    patient_table.setStyle(TableStyle([
+    report_table.setStyle(TableStyle([
 
         (
             'BACKGROUND',
@@ -922,139 +917,15 @@ if st.button("🚀 Run AI Prediction"):
             (-1, -1),
             1,
             colors.black
-        ),
-
-        (
-            'FONTNAME',
-            (0, 0),
-            (-1, -1),
-            'Helvetica-Bold'
         )
 
     ]))
 
-    elements.append(patient_table)
+    elements.append(report_table)
 
     elements.append(
         Spacer(1, 20)
     )
-
-    # =====================================================
-    # MEDICAL DATA TABLE
-    # =====================================================
-
-    medical_data = [
-
-        ["Parameter", "Value"],
-
-        ["Pregnancies", preg],
-        ["Glucose", glucose],
-        ["Blood Pressure", bp],
-        ["Skin Thickness", skin],
-        ["Insulin", insulin],
-        ["BMI", bmi],
-        ["DPF", dpf],
-        ["Age", age]
-
-    ]
-
-    medical_table = Table(
-        medical_data,
-        colWidths=[220, 220]
-    )
-
-    medical_table.setStyle(TableStyle([
-
-        (
-            'BACKGROUND',
-            (0, 0),
-            (-1, 0),
-            colors.grey
-        ),
-
-        (
-            'TEXTCOLOR',
-            (0, 0),
-            (-1, 0),
-            colors.white
-        ),
-
-        (
-            'GRID',
-            (0, 0),
-            (-1, -1),
-            1,
-            colors.black
-        ),
-
-        (
-            'BACKGROUND',
-            (0, 1),
-            (-1, -1),
-            colors.beige
-        )
-
-    ]))
-
-    elements.append(medical_table)
-
-    elements.append(
-        Spacer(1, 20)
-    )
-
-    # =====================================================
-    # RECOMMENDATION
-    # =====================================================
-
-    if prediction == 1:
-
-        recommendation_text = """
-
-        <b>Health Recommendations:</b><br/><br/>
-
-        • Reduce sugar intake<br/>
-        • Daily exercise<br/>
-        • Weight management<br/>
-        • Regular glucose monitoring<br/>
-        • Consult doctor regularly
-
-        """
-
-    else:
-
-        recommendation_text = """
-
-        <b>Healthy Lifestyle Tips:</b><br/><br/>
-
-        • Maintain healthy diet<br/>
-        • Exercise regularly<br/>
-        • Drink enough water<br/>
-        • Sleep properly<br/>
-        • Regular health checkup
-
-        """
-
-    recommendation_para = Paragraph(
-        recommendation_text,
-        styles['BodyText']
-    )
-
-    elements.append(recommendation_para)
-
-    elements.append(
-        Spacer(1, 20)
-    )
-
-    footer = Paragraph(
-        "Generated by AI Diabetes Prediction System",
-        styles['Italic']
-    )
-
-    elements.append(footer)
-
-    # =====================================================
-    # BUILD PDF
-    # =====================================================
 
     doc.build(elements)
 
@@ -1062,13 +933,9 @@ if st.button("🚀 Run AI Prediction"):
 
     buffer.close()
 
-    # =====================================================
-    # DOWNLOAD BUTTON
-    # =====================================================
-
     st.download_button(
 
-        label="📄 Download Full Medical PDF Report",
+        label="📄 Download PDF Report",
 
         data=pdf,
 
@@ -1079,93 +946,11 @@ if st.button("🚀 Run AI Prediction"):
     )
 
 # =========================================================
-# ADMIN DASHBOARD
-# =========================================================
-
-st.markdown("---")
-
-if st.session_state.user_email == "admin@gmail.com":
-
-    st.subheader("🛡️ Admin Dashboard")
-
-    # =====================================================
-    # TOTAL USERS
-    # =====================================================
-
-    total_users = pd.read_sql_query(
-        "SELECT COUNT(*) as total FROM users",
-        conn
-    )
-
-    total_patients = pd.read_sql_query(
-        "SELECT COUNT(*) as total FROM patients",
-        conn
-    )
-
-    colA, colB = st.columns(2)
-
-    with colA:
-
-        st.metric(
-            "Total Users",
-            int(total_users['total'][0])
-        )
-
-    with colB:
-
-        st.metric(
-            "Total Predictions",
-            int(total_patients['total'][0])
-        )
-
-    st.markdown("---")
-
-    # =====================================================
-    # SHOW PATIENT RECORDS
-    # =====================================================
-
-    st.subheader("📂 Patient Records")
-
-    df_records = pd.read_sql_query(
-        "SELECT * FROM patients",
-        conn
-    )
-
-    st.dataframe(df_records)
-
-    # =====================================================
-    # DOWNLOAD CSV
-    # =====================================================
-
-    csv = df_records.to_csv(
-        index=False
-    ).encode('utf-8')
-
-    st.download_button(
-
-        "⬇ Download Database CSV",
-
-        csv,
-
-        "patients_records.csv",
-
-        "text/csv"
-
-    )
-
-else:
-
-    st.info(
-        "User Dashboard Active"
-    )
-
-# =========================================================
 # FOOTER
 # =========================================================
 
 st.markdown("---")
 
 st.caption(
-    "🚀 Advanced AI Diabetes Prediction System "
-    "using Machine Learning + Streamlit + SQLite"
+    "🚀 AI Diabetes Prediction System"
 )
