@@ -33,37 +33,207 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS
+# PROFESSIONAL CSS UI
 # =========================================================
 
 st.markdown("""
 <style>
 
-.main {
-    background-color: #0e1117;
+/* MAIN APP */
+.stApp {
+    background: linear-gradient(
+        to right,
+        #0f172a,
+        #111827
+    );
+    color: white;
 }
 
-.stButton > button {
-    width: 100%;
-    background: linear-gradient(to right, #00c6ff, #0072ff);
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background: #111827;
+    border-right: 2px solid #1f2937;
+}
+
+/* TITLES */
+h1, h2, h3 {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* INPUT BOX */
+.stTextInput > div > div > input {
+
+    background-color: #1e293b;
     color: white;
+
     border-radius: 10px;
-    height: 3em;
+    border: 1px solid #334155;
+
+    padding: 10px;
+}
+
+/* SELECT BOX */
+.stSelectbox > div > div {
+
+    background-color: #1e293b;
+    color: white;
+
+    border-radius: 10px;
+}
+
+/* DATE INPUT */
+.stDateInput > div > div input {
+
+    background-color: #1e293b;
+    color: white;
+
+    border-radius: 10px;
+}
+
+/* SLIDERS */
+.stSlider {
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* BUTTON */
+.stButton > button {
+
+    width: 100%;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #06b6d4
+    );
+
+    color: white;
+
     border: none;
+
+    border-radius: 12px;
+
+    height: 50px;
+
     font-size: 18px;
     font-weight: bold;
+
+    transition: 0.3s ease-in-out;
+
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
 }
 
+/* BUTTON HOVER */
+.stButton > button:hover {
+
+    transform: scale(1.02);
+
+    background: linear-gradient(
+        135deg,
+        #1d4ed8,
+        #0891b2
+    );
+
+    color: white;
+}
+
+/* METRIC CARDS */
 .metric-card {
-    background-color: #1c1f26;
-    padding: 20px;
-    border-radius: 15px;
+
+    background: linear-gradient(
+        135deg,
+        #1e293b,
+        #0f172a
+    );
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    border: 1px solid #334155;
+
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.3);
+
     text-align: center;
+
+    margin-bottom: 15px;
 }
 
+/* BIG TEXT */
 .big-font {
-    font-size: 22px !important;
+
+    font-size: 24px !important;
+
     font-weight: bold;
+
+    color: white;
+}
+
+/* METRICS */
+div[data-testid="metric-container"] {
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
+}
+
+/* DATAFRAME */
+[data-testid="stDataFrame"] {
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    border: 1px solid #334155;
+}
+
+/* SUCCESS MESSAGE */
+.stSuccess {
+
+    border-radius: 10px;
+}
+
+/* ERROR MESSAGE */
+.stError {
+
+    border-radius: 10px;
+}
+
+/* WARNING MESSAGE */
+.stWarning {
+
+    border-radius: 10px;
+}
+
+/* FOOTER */
+footer {
+    visibility: hidden;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
 }
 
 </style>
