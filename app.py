@@ -32,226 +32,258 @@ st.set_page_config(
     layout="wide"
 )
 
-
-# =========================================================
-# LOTTIE FUNCTION
-# =========================================================
-
-def load_lottie(url):
-
-    r = requests.get(url)
-
-    if r.status_code != 200:
-        return None
-
-    return r.json()
     
 # =========================================================
-# PROFESSIONAL CSS UI
+# THEME SWITCHER
 # =========================================================
 
-st.markdown("""
-<style>
+theme = st.sidebar.toggle(
+    "🌙 Dark Mode",
+    value=True
+)
 
-/* MAIN APP */
-.stApp {
-    background: linear-gradient(
-        to right,
-        #0f172a,
-        #111827
-    );
-    color: white;
-}
+# =========================================================
+# DARK THEME
+# =========================================================
 
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background: #111827;
-    border-right: 2px solid #1f2937;
-}
+if theme:
 
-/* TITLES */
-h1, h2, h3 {
-    color: #ffffff !important;
-    font-weight: 700;
-}
+    st.markdown("""
+    <style>
 
-/* INPUT BOX */
-.stTextInput > div > div > input {
+    .stApp {
+        background: linear-gradient(
+            to right,
+            #0f172a,
+            #111827
+        );
+        color: white;
+    }
 
-    background-color: #1e293b;
-    color: white;
+    section[data-testid="stSidebar"] {
+        background: #111827;
+        border-right: 2px solid #1f2937;
+    }
 
-    border-radius: 10px;
-    border: 1px solid #334155;
+    h1, h2, h3, h4, h5, h6, p, label {
+        color: white !important;
+    }
 
-    padding: 10px;
-}
+    .stTextInput > div > div > input,
+    .stNumberInput input,
+    .stDateInput input {
 
-/* SELECT BOX */
-.stSelectbox > div > div {
+        background-color: #1e293b !important;
+        color: white !important;
 
-    background-color: #1e293b;
-    color: white;
+        border-radius: 10px;
+        border: 1px solid #334155;
+    }
 
-    border-radius: 10px;
-}
+    .stSelectbox > div > div {
 
-/* DATE INPUT */
-.stDateInput > div > div input {
+        background-color: #1e293b !important;
+        color: white !important;
 
-    background-color: #1e293b;
-    color: white;
+        border-radius: 10px;
+    }
 
-    border-radius: 10px;
-}
+    .stButton > button {
 
-/* SLIDERS */
-.stSlider {
+        width: 100%;
 
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
+        background: linear-gradient(
+            135deg,
+            #2563eb,
+            #06b6d4
+        );
 
-/* BUTTON */
-.stButton > button {
+        color: white;
 
-    width: 100%;
+        border: none;
 
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #06b6d4
-    );
+        border-radius: 12px;
 
-    color: white;
+        height: 50px;
 
-    border: none;
+        font-size: 18px;
+        font-weight: bold;
 
-    border-radius: 12px;
+        transition: 0.3s;
 
-    height: 50px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+    }
 
-    font-size: 18px;
-    font-weight: bold;
+    .stButton > button:hover {
 
-    transition: 0.3s ease-in-out;
+        transform: scale(1.02);
 
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
-}
+        background: linear-gradient(
+            135deg,
+            #1d4ed8,
+            #0891b2
+        );
+    }
 
-/* BUTTON HOVER */
-.stButton > button:hover {
+    .metric-card {
 
-    transform: scale(1.02);
+        background: linear-gradient(
+            135deg,
+            #1e293b,
+            #0f172a
+        );
 
-    background: linear-gradient(
-        135deg,
-        #1d4ed8,
-        #0891b2
-    );
+        padding: 25px;
 
-    color: white;
-}
+        border-radius: 18px;
 
-/* METRIC CARDS */
-.metric-card {
+        border: 1px solid #334155;
 
-    background: linear-gradient(
-        135deg,
-        #1e293b,
-        #0f172a
-    );
+        box-shadow: 0px 5px 20px rgba(0,0,0,0.3);
 
-    padding: 25px;
+        text-align: center;
 
-    border-radius: 18px;
+        margin-bottom: 15px;
+    }
 
-    border: 1px solid #334155;
+    div[data-testid="metric-container"] {
 
-    box-shadow: 0px 5px 20px rgba(0,0,0,0.3);
+        background: #1e293b;
 
-    text-align: center;
+        border: 1px solid #334155;
 
-    margin-bottom: 15px;
-}
+        padding: 15px;
 
-/* BIG TEXT */
-.big-font {
+        border-radius: 15px;
 
-    font-size: 24px !important;
+        box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
+    }
 
-    font-weight: bold;
+    [data-testid="stDataFrame"] {
 
-    color: white;
-}
+        border-radius: 15px;
 
-/* METRICS */
-div[data-testid="metric-container"] {
+        overflow: hidden;
 
-    background: #1e293b;
+        border: 1px solid #334155;
+    }
 
-    border: 1px solid #334155;
+    footer {
+        visibility: hidden;
+    }
 
-    padding: 15px;
+    </style>
+    """, unsafe_allow_html=True)
 
-    border-radius: 15px;
+# =========================================================
+# LIGHT THEME
+# =========================================================
 
-    box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
-}
+else:
 
-/* DATAFRAME */
-[data-testid="stDataFrame"] {
+    st.markdown("""
+    <style>
 
-    border-radius: 15px;
+    .stApp {
+        background: #f8fafc;
+        color: black;
+    }
 
-    overflow: hidden;
+    section[data-testid="stSidebar"] {
+        background: #ffffff;
+        border-right: 2px solid #e2e8f0;
+    }
 
-    border: 1px solid #334155;
-}
+    h1, h2, h3, h4, h5, h6, p, label {
+        color: black !important;
+    }
 
-/* SUCCESS MESSAGE */
-.stSuccess {
+    .stTextInput > div > div > input,
+    .stNumberInput input,
+    .stDateInput input {
 
-    border-radius: 10px;
-}
+        background-color: white !important;
+        color: black !important;
 
-/* ERROR MESSAGE */
-.stError {
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+    }
 
-    border-radius: 10px;
-}
+    .stSelectbox > div > div {
 
-/* WARNING MESSAGE */
-.stWarning {
+        background-color: white !important;
+        color: black !important;
 
-    border-radius: 10px;
-}
+        border-radius: 10px;
+    }
 
-/* FOOTER */
-footer {
-    visibility: hidden;
-}
+    .stButton > button {
 
-/* SCROLLBAR */
-::-webkit-scrollbar {
-    width: 10px;
-}
+        width: 100%;
 
-::-webkit-scrollbar-track {
-    background: #0f172a;
-}
+        background: linear-gradient(
+            135deg,
+            #2563eb,
+            #06b6d4
+        );
 
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 10px;
-}
+        color: white;
 
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
-}
+        border: none;
 
-</style>
-""", unsafe_allow_html=True)
+        border-radius: 12px;
+
+        height: 50px;
+
+        font-size: 18px;
+        font-weight: bold;
+
+        transition: 0.3s;
+    }
+
+    .metric-card {
+
+        background: white;
+
+        padding: 25px;
+
+        border-radius: 18px;
+
+        border: 1px solid #e2e8f0;
+
+        box-shadow: 0px 5px 20px rgba(0,0,0,0.08);
+
+        text-align: center;
+
+        margin-bottom: 15px;
+    }
+
+    div[data-testid="metric-container"] {
+
+        background: white;
+
+        border: 1px solid #e2e8f0;
+
+        padding: 15px;
+
+        border-radius: 15px;
+    }
+
+    [data-testid="stDataFrame"] {
+
+        border-radius: 15px;
+
+        overflow: hidden;
+
+        border: 1px solid #e2e8f0;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
 # =========================================================
 # DATABASE CONNECTION
 # =========================================================
