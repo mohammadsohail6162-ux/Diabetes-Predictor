@@ -147,7 +147,7 @@ columns = pickle.load(
 )
 
 # =========================================================
-# PASSWORD HASHING
+# PASSWORD HASH
 # =========================================================
 
 def make_hash(password):
@@ -252,7 +252,7 @@ if st.session_state.logged_in == False:
             existing_user = cursor.fetchone()
 
             # =============================================
-            # USER DOES NOT EXIST
+            # USER NOT FOUND
             # =============================================
 
             if existing_user is None:
@@ -264,10 +264,6 @@ if st.session_state.logged_in == False:
                 st.info(
                     "Please create account first"
                 )
-
-            # =============================================
-            # LOGIN VALIDATION
-            # =============================================
 
             else:
 
@@ -322,10 +318,6 @@ if st.session_state.logged_in == False:
 
         if st.button("Create Account"):
 
-            # =============================================
-            # EMPTY FIELD CHECK
-            # =============================================
-
             if (
 
                 new_user == ""
@@ -338,10 +330,6 @@ if st.session_state.logged_in == False:
                 st.warning(
                     "Please fill all fields"
                 )
-
-            # =============================================
-            # PASSWORD MATCH CHECK
-            # =============================================
 
             elif new_password != confirm_password:
 
@@ -362,7 +350,7 @@ if st.session_state.logged_in == False:
                 existing_user = cursor.fetchone()
 
                 # =========================================
-                # USER ALREADY EXISTS
+                # ACCOUNT EXISTS
                 # =========================================
 
                 if existing_user:
@@ -374,10 +362,6 @@ if st.session_state.logged_in == False:
                     st.info(
                         "Please login instead"
                     )
-
-                # =========================================
-                # CREATE NEW USER
-                # =========================================
 
                 else:
 
@@ -459,10 +443,6 @@ with left:
 
     c1, c2, c3 = st.columns(3)
 
-    # =====================================================
-    # COLUMN 1
-    # =====================================================
-
     with c1:
 
         if gender == "Female":
@@ -489,10 +469,6 @@ with left:
             120
         )
 
-    # =====================================================
-    # COLUMN 2
-    # =====================================================
-
     with c2:
 
         bp = st.slider(
@@ -508,10 +484,6 @@ with left:
             100,
             20
         )
-
-    # =====================================================
-    # COLUMN 3
-    # =====================================================
 
     with c3:
 
@@ -697,7 +669,7 @@ if st.button("🚀 Run AI Prediction"):
 
     )
 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
     """, (
 
@@ -725,7 +697,7 @@ if st.button("🚀 Run AI Prediction"):
     conn.commit()
 
     # =====================================================
-    # RESULT SECTION
+    # RESULT DISPLAY
     # =====================================================
 
     colA, colB = st.columns(2)
@@ -796,7 +768,7 @@ if st.button("🚀 Run AI Prediction"):
     st.markdown("---")
 
     # =====================================================
-    # ANALYTICS CHART
+    # ANALYTICS
     # =====================================================
 
     st.subheader("📈 Health Analytics")
@@ -837,7 +809,7 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # PDF REPORT GENERATION
+    # PDF REPORT
     # =====================================================
 
     buffer = BytesIO()
