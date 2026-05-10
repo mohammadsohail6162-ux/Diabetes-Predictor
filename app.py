@@ -443,7 +443,7 @@ if st.session_state.logged_in == False:
     if "menu" not in st.session_state:
         st.session_state.menu = "User Login"
 
-    if st.sidebar.button("🔐 User Login"):
+    if st.sidebar.button("🔐 Login"):
         st.session_state.menu = "User Login"
 
     if st.sidebar.button("📝 Sign Up"):
