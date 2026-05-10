@@ -434,16 +434,25 @@ if st.session_state.logged_in == False:
 
     st.title("🩺 AI Diabetes Prediction System")
 
-    menu = [
-        "User Login",
-        "Create Account",
-        "Admin Login"
-    ]
+    st.sidebar.markdown("## 📌 Navigation")
 
-    choice = st.sidebar.selectbox(
-        "Menu",
-        menu
-    )
+    # =====================================================
+    # MENU BUTTONS
+    # =====================================================
+
+    if "menu" not in st.session_state:
+        st.session_state.menu = "User Login"
+
+    if st.sidebar.button("🔐 User Login"):
+        st.session_state.menu = "User Login"
+
+    if st.sidebar.button("📝 Create Account"):
+        st.session_state.menu = "Create Account"
+
+    if st.sidebar.button("🛡️ Admin Login"):
+        st.session_state.menu = "Admin Login"
+
+    choice = st.session_state.menu
 
     # =====================================================
     # USER LOGIN
@@ -602,8 +611,8 @@ if st.session_state.logged_in == False:
         if st.button("Admin Login"):
 
             if (
-                admin_email == "admin@gmail.com"
-                and admin_password == "admin123"
+                admin_email == "mohammadsohail6162@gmail.com"
+                and admin_password == "9801686031"
             ):
 
                 st.success(
