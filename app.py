@@ -22,6 +22,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 
+from streamlit_option_menu import option_menu
+from streamlit_lottie import st_lottie
+from streamlit_extras.metric_cards import style_metric_cards
+import requests
+
 # =========================================================
 # PAGE CONFIG
 # =========================================================
@@ -32,70 +37,92 @@ st.set_page_config(
     layout="wide"
 )
 
+
 # =========================================================
-# PROFESSIONAL CSS UI
+# LOTTIE FUNCTION
+# =========================================================
+
+def load_lottie(url):
+
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        return None
+
+    return r.json()
+    
+# =========================================================
+# PROFESSIONAL CSS
 # =========================================================
 
 st.markdown("""
 <style>
 
-/* MAIN APP */
+/* BACKGROUND */
 .stApp {
-    background: linear-gradient(
-        to right,
+
+    background:
+    linear-gradient(
+        135deg,
         #0f172a,
-        #111827
+        #111827,
+        #1e293b
     );
+
     color: white;
 }
 
 /* SIDEBAR */
 section[data-testid="stSidebar"] {
-    background: #111827;
-    border-right: 2px solid #1f2937;
+
+    background:
+    rgba(17,24,39,0.95);
+
+    backdrop-filter: blur(10px);
+
+    border-right:
+    1px solid rgba(255,255,255,0.1);
 }
 
-/* TITLES */
-h1, h2, h3 {
+/* TITLE */
+h1 {
+
+    font-size: 42px !important;
+
+    font-weight: 800 !important;
+
     color: #ffffff !important;
-    font-weight: 700;
 }
 
-/* INPUT BOX */
-.stTextInput > div > div > input {
+/* SUBTITLE */
+h2, h3 {
 
-    background-color: #1e293b;
-    color: white;
-
-    border-radius: 10px;
-    border: 1px solid #334155;
-
-    padding: 10px;
+    color: #e2e8f0 !important;
 }
 
-/* SELECT BOX */
-.stSelectbox > div > div {
+/* INPUT */
+.stTextInput input,
+.stNumberInput input,
+.stDateInput input {
 
-    background-color: #1e293b;
-    color: white;
+    background-color:
+    rgba(30,41,59,0.8) !important;
 
-    border-radius: 10px;
+    color: white !important;
+
+    border-radius: 12px !important;
+
+    border:
+    1px solid rgba(255,255,255,0.1) !important;
 }
 
-/* DATE INPUT */
-.stDateInput > div > div input {
+/* SELECTBOX */
+.stSelectbox div[data-baseweb="select"] {
 
-    background-color: #1e293b;
-    color: white;
+    background-color:
+    rgba(30,41,59,0.8) !important;
 
-    border-radius: 10px;
-}
-
-/* SLIDERS */
-.stSlider {
-
-    padding-top: 10px;
-    padding-bottom: 10px;
+    border-radius: 12px !important;
 }
 
 /* BUTTON */
@@ -103,7 +130,14 @@ h1, h2, h3 {
 
     width: 100%;
 
-    background: linear-gradient(
+    height: 52px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+    linear-gradient(
         135deg,
         #2563eb,
         #06b6d4
@@ -111,78 +145,53 @@ h1, h2, h3 {
 
     color: white;
 
-    border: none;
-
-    border-radius: 12px;
-
-    height: 50px;
-
     font-size: 18px;
+
     font-weight: bold;
 
-    transition: 0.3s ease-in-out;
-
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
 }
 
 /* BUTTON HOVER */
 .stButton > button:hover {
 
-    transform: scale(1.02);
+    transform: translateY(-2px);
 
-    background: linear-gradient(
-        135deg,
-        #1d4ed8,
-        #0891b2
-    );
-
-    color: white;
+    box-shadow:
+    0px 10px 25px rgba(0,0,0,0.3);
 }
 
-/* METRIC CARDS */
-.metric-card {
+/* GLASS CARD */
+.glass {
 
-    background: linear-gradient(
-        135deg,
-        #1e293b,
-        #0f172a
-    );
+    background:
+    rgba(255,255,255,0.08);
+
+    border-radius: 20px;
 
     padding: 25px;
 
-    border-radius: 18px;
+    backdrop-filter: blur(10px);
 
-    border: 1px solid #334155;
+    border:
+    1px solid rgba(255,255,255,0.1);
 
-    box-shadow: 0px 5px 20px rgba(0,0,0,0.3);
-
-    text-align: center;
-
-    margin-bottom: 15px;
+    box-shadow:
+    0px 8px 30px rgba(0,0,0,0.3);
 }
 
-/* BIG TEXT */
-.big-font {
-
-    font-size: 24px !important;
-
-    font-weight: bold;
-
-    color: white;
-}
-
-/* METRICS */
+/* METRIC */
 div[data-testid="metric-container"] {
 
-    background: #1e293b;
+    background:
+    rgba(255,255,255,0.08);
 
-    border: 1px solid #334155;
+    border-radius: 18px;
 
     padding: 15px;
 
-    border-radius: 15px;
-
-    box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
+    border:
+    1px solid rgba(255,255,255,0.08);
 }
 
 /* DATAFRAME */
@@ -191,53 +200,395 @@ div[data-testid="metric-container"] {
     border-radius: 15px;
 
     overflow: hidden;
-
-    border: 1px solid #334155;
 }
 
-/* SUCCESS MESSAGE */
-.stSuccess {
-
-    border-radius: 10px;
-}
-
-/* ERROR MESSAGE */
-.stError {
-
-    border-radius: 10px;
-}
-
-/* WARNING MESSAGE */
-.stWarning {
-
-    border-radius: 10px;
-}
-
-/* FOOTER */
+/* HIDE FOOTER */
 footer {
     visibility: hidden;
 }
 
-/* SCROLLBAR */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: #0f172a;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
-}
-
 </style>
 """, unsafe_allow_html=True)
+
+# =========================================================
+# LOTTIE ANIMATION
+# =========================================================
+
+lottie_health = load_lottie(
+    "https://assets2.lottiefiles.com/packages/lf20_5njp3vgg.json"
+)
+
+# =========================================================
+# SIDEBAR MENU
+# =========================================================
+
+with st.sidebar:
+
+    selected = option_menu(
+
+        menu_title="🩺 Navigation",
+
+        options=[
+            "Dashboard",
+            "Prediction",
+            "Analytics",
+            "Profile"
+        ],
+
+        icons=[
+            "house",
+            "activity",
+            "bar-chart",
+            "person"
+        ],
+
+        menu_icon="heart-pulse",
+
+        default_index=0,
+
+        styles={
+
+            "container": {
+                "padding": "5px",
+                "background-color": "#111827"
+            },
+
+            "icon": {
+                "color": "cyan",
+                "font-size": "20px"
+            },
+
+            "nav-link": {
+
+                "font-size": "16px",
+
+                "text-align": "left",
+
+                "margin": "5px",
+
+                "border-radius": "10px"
+            },
+
+            "nav-link-selected": {
+
+                "background":
+                "linear-gradient(135deg,#2563eb,#06b6d4)"
+            },
+        }
+    )
+
+# =========================================================
+# DASHBOARD PAGE
+# =========================================================
+
+if selected == "Dashboard":
+
+    col1, col2 = st.columns([2,1])
+
+    with col1:
+
+        st.title(
+            "🧠 AI Diabetes Prediction System"
+        )
+
+        st.markdown("""
+
+        <div class="glass">
+
+        <h3>
+        Smart Healthcare Analytics Platform
+        </h3>
+
+        <p>
+        AI-powered diabetes prediction system
+        with advanced analytics dashboard,
+        admin management, PDF reports,
+        and machine learning insights.
+        </p>
+
+        </div>
+
+        """, unsafe_allow_html=True)
+
+    with col2:
+
+        st_lottie(
+            lottie_health,
+            height=250,
+            key="health"
+        )
+
+# =========================================================
+# PROFILE PAGE
+# =========================================================
+
+elif selected == "Profile":
+
+    st.title("👤 User Profile")
+
+    st.markdown("""
+
+    <div class="glass">
+
+    <h3>User Information</h3>
+
+    </div>
+
+    """, unsafe_allow_html=True)
+
+    st.write(
+        f"### Email: {st.session_state.user_email}"
+    )
+
+    st.write(
+        "### Role: User"
+    )
+
+# =========================================================
+# ANALYTICS PAGE
+# =========================================================
+
+elif selected == "Analytics":
+
+    st.title("📈 Analytics Dashboard")
+
+    total_users = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM users",
+        conn
+    )
+
+    total_patients = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM patients",
+        conn
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Total Users",
+            int(total_users['total'][0])
+        )
+
+    with col2:
+
+        st.metric(
+            "Total Predictions",
+            int(total_patients['total'][0])
+        )
+
+    style_metric_cards()
+
+    df = pd.read_sql_query(
+        "SELECT * FROM patients",
+        conn
+    )
+
+    if not df.empty:
+
+        fig = px.pie(
+
+            df,
+
+            names="prediction",
+
+            title="Prediction Distribution"
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        fig2 = px.line(
+
+            df,
+
+            x="id",
+
+            y="probability",
+
+            title="Prediction Probability Trend"
+        )
+
+        st.plotly_chart(
+            fig2,
+            use_container_width=True
+        )
+
+# =========================================================
+# PREDICTION PAGE
+# =========================================================
+
+elif selected == "Prediction":
+
+    st.title(
+        "🩺 Diabetes Risk Prediction"
+    )
+
+    st.markdown("""
+    <div class="glass">
+    <h3>Enter Patient Medical Details</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        glucose = st.slider(
+            "Glucose",
+            50,
+            250,
+            120
+        )
+
+        bp = st.slider(
+            "Blood Pressure",
+            40,
+            150,
+            70
+        )
+
+    with col2:
+
+        insulin = st.slider(
+            "Insulin",
+            0,
+            400,
+            100
+        )
+
+        bmi = st.slider(
+            "BMI",
+            10.0,
+            60.0,
+            25.0
+        )
+
+    with col3:
+
+        age = st.slider(
+            "Age",
+            1,
+            100,
+            30
+        )
+
+        dpf = st.slider(
+            "DPF",
+            0.0,
+            3.0,
+            0.5
+        )
+
+    if st.button("🚀 Predict Now"):
+
+        input_raw = pd.DataFrame({
+
+            'Pregnancies': [0],
+            'Glucose': [glucose],
+            'BloodPressure': [bp],
+            'SkinThickness': [20],
+            'Insulin': [insulin],
+            'BMI': [bmi],
+            'DiabetesPedigreeFunction': [dpf],
+            'Age': [age]
+
+        })
+
+        input_raw['Glucose_BMI'] = (
+            input_raw['Glucose']
+            *
+            input_raw['BMI']
+        )
+
+        input_raw['Insulin_Glucose'] = (
+            input_raw['Insulin']
+            *
+            input_raw['Glucose']
+        )
+
+        input_raw['Age_BMI'] = (
+            input_raw['Age']
+            *
+            input_raw['BMI']
+        )
+
+        input_raw['BMI_Squared'] = (
+            input_raw['BMI'] ** 2
+        )
+
+        input_encoded = pd.get_dummies(
+            input_raw
+        )
+
+        input_df = input_encoded.reindex(
+            columns=columns,
+            fill_value=0
+        )
+
+        prediction = model.predict(
+            input_df
+        )[0]
+
+        probability = model.predict_proba(
+            input_df
+        )[0][1]
+
+        if prediction == 1:
+
+            st.error(
+                f"⚠️ High Risk ({probability*100:.2f}%)"
+            )
+
+        else:
+
+            st.success(
+                f"✅ Low Risk ({probability*100:.2f}%)"
+            )
+
+        fig = go.Figure(go.Indicator(
+
+            mode="gauge+number",
+
+            value=probability * 100,
+
+            title={
+                'text': "Diabetes Risk %"
+            },
+
+            gauge={
+
+                'axis': {
+                    'range': [0, 100]
+                },
+
+                'steps': [
+
+                    {
+                        'range': [0, 30],
+                        'color': "green"
+                    },
+
+                    {
+                        'range': [30, 70],
+                        'color': "orange"
+                    },
+
+                    {
+                        'range': [70, 100],
+                        'color': "red"
+                    }
+                ]
+            }
+        ))
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
 
 # =========================================================
 # DATABASE CONNECTION
