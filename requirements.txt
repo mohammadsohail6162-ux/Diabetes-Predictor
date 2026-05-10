@@ -5,9 +5,3 @@ scikit-learn
 joblib
 plotly
 reportlab
-streamlit-lottie
-streamlit-option-menu
-streamlit-extras
-streamlit-authenticator
-pillow
-bcrypt
