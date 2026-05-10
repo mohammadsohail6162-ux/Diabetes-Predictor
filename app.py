@@ -1,8 +1,16 @@
-# IMPORTANT:
-# 1. Delete old users.db file before running
-# 2. Keep diabetes_model.pkl and columns.pkl in same folder
-# 3. Run using:
+# =========================================================
+# IMPORTANT
+# =========================================================
+# 1. Delete old users.db before first run
+# 2. Keep:
+#       diabetes_model.pkl
+#       columns.pkl
+#    in same folder
+#
+# 3. Run:
 #    streamlit run app.py
+#
+# =========================================================
 
 import streamlit as st
 import pandas as pd
@@ -105,7 +113,7 @@ CREATE TABLE IF NOT EXISTS users (
 """)
 
 # =========================================================
-# PATIENT TABLE
+# PATIENTS TABLE
 # =========================================================
 
 cursor.execute("""
@@ -215,7 +223,7 @@ if "user_email" not in st.session_state:
     st.session_state.user_email = ""
 
 # =========================================================
-# LOGIN / SIGNUP PAGE
+# LOGIN / SIGNUP
 # =========================================================
 
 if st.session_state.logged_in == False:
@@ -235,7 +243,7 @@ if st.session_state.logged_in == False:
 
     if choice == "Login":
 
-        st.subheader("🔐 User Login")
+        st.subheader("🔐 Login")
 
         email = st.text_input("Email")
 
@@ -294,7 +302,7 @@ if st.session_state.logged_in == False:
 
     elif choice == "Create Account":
 
-        st.subheader("📝 Create New Account")
+        st.subheader("📝 Create Account")
 
         new_user = st.text_input(
             "Username"
@@ -353,10 +361,6 @@ if st.session_state.logged_in == False:
                         "Account already exists"
                     )
 
-                    st.info(
-                        "Please login instead"
-                    )
-
                 else:
 
                     signup_user(
@@ -372,7 +376,7 @@ if st.session_state.logged_in == False:
                     )
 
                     st.info(
-                        "Now go to Login Page"
+                        "Now Login"
                     )
 
     st.stop()
@@ -381,7 +385,7 @@ if st.session_state.logged_in == False:
 # SIDEBAR
 # =========================================================
 
-st.sidebar.title("🩺 AI Health Dashboard")
+st.sidebar.title("🩺 AI Dashboard")
 
 st.sidebar.success(
     f"Logged in as: {st.session_state.user_email}"
@@ -435,6 +439,10 @@ with left:
 
     c1, c2, c3 = st.columns(3)
 
+    # =====================================================
+    # COLUMN 1
+    # =====================================================
+
     with c1:
 
         if gender == "Female":
@@ -461,6 +469,10 @@ with left:
             120
         )
 
+    # =====================================================
+    # COLUMN 2
+    # =====================================================
+
     with c2:
 
         bp = st.slider(
@@ -477,6 +489,10 @@ with left:
             20
         )
 
+    # =====================================================
+    # COLUMN 3
+    # =====================================================
+
     with c3:
 
         insulin = st.slider(
@@ -492,6 +508,10 @@ with left:
             100,
             30
         )
+
+    # =====================================================
+    # OTHER INPUTS
+    # =====================================================
 
     bmi = st.slider(
         "BMI",
@@ -847,10 +867,6 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
-    # =====================================================
-    # TITLE
-    # =====================================================
-
     title = Paragraph(
         "<b>AI Diabetes Prediction Medical Report</b>",
         styles['Title']
@@ -915,7 +931,7 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # MEDICAL DATA
+    # MEDICAL DATA TABLE
     # =====================================================
 
     medical_data = [
@@ -1057,18 +1073,30 @@ if st.button("🚀 Run AI Prediction"):
 # ADMIN PANEL
 # =========================================================
 
-st.markdown("---")
+if st.session_state.user_email == "admin@gmail.com":
 
-st.subheader("🗂 Stored Patient Records")
+    st.markdown("---")
 
-if st.checkbox("Show Database Records"):
+    st.subheader("🛡️ Admin Panel")
 
-    df_records = pd.read_sql_query(
-        "SELECT * FROM patients",
-        conn
+    st.success("Admin Access Granted")
+
+    if st.checkbox("Show Database Records"):
+
+        df_records = pd.read_sql_query(
+            "SELECT * FROM patients",
+            conn
+        )
+
+        st.dataframe(df_records)
+
+else:
+
+    st.markdown("---")
+
+    st.info(
+        "Patient Dashboard Active"
     )
-
-    st.dataframe(df_records)
 
 # =========================================================
 # FOOTER
