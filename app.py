@@ -594,6 +594,8 @@ elif selected == "Prediction":
 # DATABASE CONNECTION
 # =========================================================
 
+import sqlite3
+
 conn = sqlite3.connect(
     "users.db",
     check_same_thread=False
@@ -653,7 +655,6 @@ CREATE TABLE IF NOT EXISTS patients (
 """)
 
 conn.commit()
-
 # =========================================================
 # LOAD MODEL
 # =========================================================
@@ -662,6 +663,7 @@ model = pickle.load(
     open("diabetes_model.pkl", "rb")
 )
 
+# IMPORTANT
 columns = pickle.load(
     open("columns.pkl", "rb")
 )
