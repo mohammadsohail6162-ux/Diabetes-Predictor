@@ -1291,48 +1291,6 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # ANALYTICS
-    # =====================================================
-
-    st.subheader("📈 Health Analytics")
-
-    analytics_df = pd.DataFrame({
-
-        "Feature": [
-            "Glucose",
-            "Blood Pressure",
-            "BMI",
-            "Insulin",
-            "Age"
-        ],
-
-        "Value": [
-            glucose,
-            bp,
-            bmi,
-            insulin,
-            age
-        ]
-    })
-
-    fig2 = px.bar(
-
-        analytics_df,
-
-        x="Feature",
-        y="Value",
-        text="Value",
-
-        title="Patient Health Parameters"
-    )
-
-    st.plotly_chart(
-        fig2,
-        use_container_width=True
-    )
-
-
-    # =====================================================
     # RECOMMENDATIONS IN PDF
     # =====================================================
 
