@@ -1,15 +1,17 @@
 # =========================================================
-# IMPORTANT
+# AI DIABETES PREDICTION SYSTEM
+# COMPLETE FINAL CODE
 # =========================================================
-# 1. Delete old users.db before first run
-# 2. Keep:
-#       diabetes_model.pkl
-#       columns.pkl
-#    in same folder
+# Run:
+# streamlit run app.py
 #
-# 3. Run:
-#    streamlit run app.py
+# IMPORTANT:
+# Keep these files in same folder:
+# 1. diabetes_model.pkl
+# 2. columns.pkl
 #
+# FIRST TIME:
+# Delete old users.db file
 # =========================================================
 
 import streamlit as st
@@ -84,7 +86,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# DATABASE
+# DATABASE CONNECTION
 # =========================================================
 
 conn = sqlite3.connect(
@@ -223,26 +225,27 @@ if "user_email" not in st.session_state:
     st.session_state.user_email = ""
 
 # =========================================================
-# LOGIN / SIGNUP
+# LOGIN / SIGNUP PAGE
 # =========================================================
 
 if st.session_state.logged_in == False:
 
     st.title("🩺 AI Diabetes Prediction System")
 
-    menu = ["Login", "Create Account", "Admin Dashboard"]
+    menu = ["Login", "Create Account"]
+
     choice = st.sidebar.selectbox(
         "Menu",
         menu
     )
 
     # =====================================================
-    # LOGIN
+    # LOGIN PAGE
     # =====================================================
 
     if choice == "Login":
 
-        st.subheader("🔐 Login")
+        st.subheader("🔐 User Login")
 
         email = st.text_input("Email")
 
@@ -254,8 +257,11 @@ if st.session_state.logged_in == False:
         if st.button("Login"):
 
             cursor.execute(
+
                 "SELECT * FROM users WHERE email=?",
+
                 (email,)
+
             )
 
             existing_user = cursor.fetchone()
@@ -375,7 +381,7 @@ if st.session_state.logged_in == False:
                     )
 
                     st.info(
-                        "Now Login"
+                        "Now login using your account"
                     )
 
     st.stop()
@@ -579,7 +585,7 @@ st.markdown("---")
 if st.button("🚀 Run AI Prediction"):
 
     # =====================================================
-    # INPUT DATA
+    # INPUT DATAFRAME
     # =====================================================
 
     input_raw = pd.DataFrame({
@@ -781,7 +787,7 @@ if st.button("🚀 Run AI Prediction"):
         )
 
     # =====================================================
-    # ANALYTICS
+    # ANALYTICS CHART
     # =====================================================
 
     st.subheader("📈 Health Analytics")
@@ -822,7 +828,7 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # RECOMMENDATIONS
+    # HEALTH RECOMMENDATIONS
     # =====================================================
 
     st.subheader("💡 Health Recommendations")
@@ -866,6 +872,10 @@ if st.button("🚀 Run AI Prediction"):
 
     elements = []
 
+    # =====================================================
+    # TITLE
+    # =====================================================
+
     title = Paragraph(
         "<b>AI Diabetes Prediction Medical Report</b>",
         styles['Title']
@@ -878,7 +888,7 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # PATIENT INFO
+    # PATIENT INFO TABLE
     # =====================================================
 
     patient_info = [
@@ -993,7 +1003,7 @@ if st.button("🚀 Run AI Prediction"):
     )
 
     # =====================================================
-    # RECOMMENDATIONS IN PDF
+    # RECOMMENDATION
     # =====================================================
 
     if prediction == 1:
@@ -1068,51 +1078,86 @@ if st.button("🚀 Run AI Prediction"):
 
     )
 
-# =====================================================
-# ADMIN DASHBOARD LOGIN
-# =====================================================
+# =========================================================
+# ADMIN DASHBOARD
+# =========================================================
 
-elif choice == "Admin Dashboard":
+st.markdown("---")
 
-    st.subheader("🛡️ Admin Login")
+if st.session_state.user_email == "admin@gmail.com":
 
-    admin_email = st.text_input(
-        "Admin Email"
+    st.subheader("🛡️ Admin Dashboard")
+
+    # =====================================================
+    # TOTAL USERS
+    # =====================================================
+
+    total_users = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM users",
+        conn
     )
 
-    admin_password = st.text_input(
-        "Admin Password",
-        type="password"
+    total_patients = pd.read_sql_query(
+        "SELECT COUNT(*) as total FROM patients",
+        conn
     )
 
-    if st.button("Admin Login"):
+    colA, colB = st.columns(2)
 
-        # =============================================
-        # ADMIN CHECK
-        # =============================================
+    with colA:
 
-        if (
+        st.metric(
+            "Total Users",
+            int(total_users['total'][0])
+        )
 
-            admin_email == "admin@gmail.com"
-            and admin_password == "12345"
+    with colB:
 
-        ):
+        st.metric(
+            "Total Predictions",
+            int(total_patients['total'][0])
+        )
 
-            st.success(
-                "Admin Login Successful"
-            )
+    st.markdown("---")
 
-            st.session_state.logged_in = True
+    # =====================================================
+    # SHOW PATIENT RECORDS
+    # =====================================================
 
-            st.session_state.user_email = "admin@gmail.com"
+    st.subheader("📂 Patient Records")
 
-            st.rerun()
+    df_records = pd.read_sql_query(
+        "SELECT * FROM patients",
+        conn
+    )
 
-        else:
+    st.dataframe(df_records)
 
-            st.error(
-                "Invalid Admin Credentials"
-            )
+    # =====================================================
+    # DOWNLOAD CSV
+    # =====================================================
+
+    csv = df_records.to_csv(
+        index=False
+    ).encode('utf-8')
+
+    st.download_button(
+
+        "⬇ Download Database CSV",
+
+        csv,
+
+        "patients_records.csv",
+
+        "text/csv"
+
+    )
+
+else:
+
+    st.info(
+        "User Dashboard Active"
+    )
 
 # =========================================================
 # FOOTER
